@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siap Siaga</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GAYA TAMPILAN UTAMA --- */
+        body { 
+            background-color: #f0f2f5; /* Abu-abu muda agar kartu putih lebih menonjol */
+            font-family: 'Poppins', sans-serif; 
+            padding-bottom: 100px; /* Ruang untuk tombol FAB */
+        }
+
+        /* Navbar Melengkung */
+        .navbar-custom {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            padding-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Kartu Status Utama (Floating Card) */
+        .card-status {
+            border: none;
+            border-radius: 20px;
+            color: white;
+            margin-top: -30px; /* Efek menumpuk di atas navbar */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Pilihan Warna Status */
+        .bg-gradient-success { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #f1c40f, #f39c12); color: #333; }
+        .bg-gradient-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); animation: pulse 1s infinite; }
+
+        /* Kartu Section (Berita/Tips) */
+        .card-section {
+            border: none;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .card-header-custom {
+            background-color: #0d6efd; /* Biru Header */
+            color: white;
+            font-weight: 600;
+            padding: 12px 20px;
+            border: none;
+        }
+
+        /* List Item yang Lebih Cantik */
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+        }
+        .list-group-item:last-child { border-bottom: none; }
+        
+        /* Ikon di List */
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        .bg-light-blue { background-color: #e7f1ff; color: #0d6efd; }
+        .bg-light-red { background-color: #ffe7e7; color: #dc3545; }
+        .bg-light-yellow { background-color: #fff9db; color: #f39c12; }
+        .bg-light-green { background-color: #d1e7dd; color: #198754; }
+
+        /* Tombol Kontrol (GPS/Demo) */
+        .btn-control-group {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-pill {
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 8px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* FAB (Tombol Alarm Merah) */
+        .fab-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .fab-button {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #ff4d4d, #ff0000);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 26px;
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+            transition: transform 0.2s;
+        }
+        .fab-button:active { transform: scale(0.95); }
+        .fab-label {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #dc3545;
+            font-weight: 700;
+            margin-top: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Peta */
+        #map { height: 300px; width: 100%; }
+        
+        /* Animasi */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-custom navbar-dark">
+        <div class="container pb-5"> <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <i class="fa-solid fa-shield-virus me-2"></i> Siap Siaga
+            </a>
+            <span class="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold">Versi 2.0</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card card-status bg-gradient-success p-4 text-center" id="statusBox">
+                    <h5 class="mb-1 opacity-75">STATUS SAAT INI</h5>
+                    <h1 class="fw-bold mb-2 display-4" id="statusTitle">AMAN</h1>
+                    <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-25 px-3 py-1 rounded-pill mt-2">
+                         <i class="fa-solid fa-satellite-dish"></i> 
+                         <small id="statusDesc" class="fw-bold">Menunggu Data GPS...</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-control-group">
+            <button onclick="cariLokasi()" class="btn btn-light btn-pill text-primary">
+                <i class="fa-solid fa-location-crosshairs me-1"></i> GPS Saya
+            </button>
+            <button onclick="modeDemo()" class="btn btn-warning btn-pill text-dark">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> Demo Banjir
+            </button>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                <div class="card card-section">
+                    <div class="card-header card-header-custom">
+                        Berita & Update Lapangan
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="icon-box bg-light-blue">
+                                <i class="fa-solid fa-water"></i>
+                            </div>
+                            <div class="w-100">
+                                <h6 class="mb-0 fw-bold">Sungai Citarum (Dayeuhkolot)</h6>
+                                <small class="text-muted" id="sungaiInfo">Mengambil data...</small>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="icon-box bg-light-green">
+                                <i class="fa-solid fa-road"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Jalur Pasteur</h6>
+                                <small class="text-muted">Lalu lintas terpantau lancar.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-section">
+                    <div class="card-header card-header-custom">
+                        Tips Kesiapsiagaan
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item" data-bs-toggle="modal" data-bs-target="#modalEvakuasi" style="cursor: pointer;">
+                            <div class="icon-box bg-light-red">
+                                <i class="fa-solid fa-person-running"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">Jalur Evakuasi</h6>
+                                <small class="text-muted">Cek rute terdekat</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted"></i>
+                        </div>
+                        <div class="list-group-item" data-bs-toggle="modal" data-bs-target="#modalListrik" style="cursor: pointer;">
+                            <div class="icon-box bg-light-yellow">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">Kelistrikan</h6>
+                                <small class="text-muted">Prosedur saat banjir</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted"></i>
+                        </div>
+                        <div class="list-group-item" data-bs-toggle="modal" data-bs-target="#modalTas" style="cursor: pointer;">
+                            <div class="icon-box bg-light-green">
+                                <i class="fa-solid fa-suitcase-medical"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold">Tas Siaga</h6>
+                                <small class="text-muted">Checklist barang penting</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-section">
+                    <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                        <span>Peta & Navigasi</span>
+                        <i class="fa-solid fa-map"></i>
+                    </div>
+                    <div id="map"></div>
+                    <div class="p-3 bg-light border-top">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-diamond-turn-right text-primary"></i></span>
+                            <input type="text" id="dest" class="form-control border-start-0 ps-0" placeholder="Mau evakuasi kemana?">
+                            <button onclick="bukaMaps()" class="btn btn-primary fw-bold">Rute</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="fab-container">
+        <button class="fab-button" onclick="alert('🔔 ALARM BAHAYA DIAKTIFKAN!'); navigator.vibrate([500,200,500]);">
+            <i class="fa-solid fa-bell"></i>
+        </button>
+        <div class="fab-label">Atur Alarm<br>Bahaya</div>
+    </div>
+
+    <div class="modal fade" id="modalEvakuasi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold">Prosedur Evakuasi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><ol><li>Amankan dokumen penting.</li><li>Matikan listrik & gas.</li><li>Ikuti arahan petugas BPBD.</li></ol></div></div></div></div>
+    <div class="modal fade" id="modalListrik" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Kelistrikan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><ul><li>Turunkan MCB segera.</li><li>Jangan sentuh alat elektronik basah.</li><li>Hubungi PLN 123.</li></ul></div></div></div></div>
+    <div class="modal fade" id="modalTas" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Tas Siaga</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><ul><li>Dokumen Penting</li><li>Obat-obatan</li><li>Senter & Baterai</li><li>Makanan Kering</li></ul></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Masukkan API Key OpenWeatherMap Disini
+        const API_KEY_OWM = "MASUKKAN_API_KEY_DISINI"; 
+
+        var map = L.map('map').setView([-6.9147, 107.6098], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Tambahkan Radar Hujan (Layer)
+        const rainLayer = L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY_OWM}`, { opacity: 0.8 });
+        L.control.layers(null, {"🌧️ Radar Hujan": rainLayer}).addTo(map);
+        rainLayer.addTo(map);
+
+        var userMarker = null; var floodCircle = null;
+
+        function updateUI(data) {
+            const box = document.getElementById('statusBox');
+            const title = document.getElementById('statusTitle');
+            const desc = document.getElementById('statusDesc');
+
+            // Logika Warna Status (Sesuai Referensi Gambar)
+            if (data.status === "BAHAYA") {
+                box.className = "card card-status bg-gradient-danger p-4 text-center";
+                title.innerText = "BAHAYA BANJIR";
+                if(navigator.vibrate) navigator.vibrate([1000, 500]);
+            } else if (data.status === "WASPADA") {
+                // INI YANG MEMBUAT WARNA ORANYE (SEPERTI GAMBAR REFERENSI)
+                box.className = "card card-status bg-gradient-warning p-4 text-center";
+                title.innerText = "WASPADA BANJIR";
+            } else {
+                box.className = "card card-status bg-gradient-success p-4 text-center";
+                title.innerText = "AMAN";
+            }
+            desc.innerText = data.pesan;
+
+            if (data.sungai) {
+                document.getElementById('sungaiInfo').innerHTML = 
+                    `Tinggi: <b>${data.sungai.tinggi_air}</b> | Status: <b class="${data.sungai.status==='AMAN'?'text-success':'text-danger'}">${data.sungai.status}</b>`;
+            }
+
+            if(floodCircle) map.removeLayer(floodCircle);
+            if(data.lat) {
+                floodCircle = L.circle([data.lat, data.lon], { color: 'red', fillColor: '#f03', fillOpacity: 0.4, radius: data.radius * 1000 }).addTo(map);
+                map.setView([data.lat, data.lon], 13);
+            }
+        }
+
+        async function fetchData(mode, lat, lon) {
+            try {
+                let url = `http://127.0.0.1:5000/update-status?mode=${mode}`;
+                if(lat) url += `&user_lat=${lat}&user_lon=${lon}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                updateUI(data);
+            } catch(e) { console.log(e); }
+        }
+
+        function cariLokasi() {
+            document.getElementById('statusDesc').innerText = "Mencari Lokasi...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((p) => {
+                    const lat = p.coords.latitude; const lon = p.coords.longitude;
+                    if (userMarker) map.removeLayer(userMarker);
+                    userMarker = L.marker([lat, lon], {draggable: true}).addTo(map).bindPopup("Anda").openPopup();
+                    map.setView([lat, lon], 12);
+                    fetchData('real', lat, lon);
+                    userMarker.on('dragend', function(e) { fetchData('real', userMarker.getLatLng().lat, userMarker.getLatLng().lng); });
+                }, () => alert("Gagal ambil GPS"), {enableHighAccuracy: true});
+            }
+        }
+
+        function modeDemo() {
+            // Simulasi Pasteur Banjir
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.marker([-6.8900, 107.5800], {draggable: true}).addTo(map).bindPopup("Lokasi Demo").openPopup();
+            fetchData('demo', -6.8900, 107.5800);
+        }
+
+        function bukaMaps() {
+            const dest = document.getElementById('dest').value;
+            if(!userMarker) return alert("Nyalakan GPS dulu!");
+            const pos = userMarker.getLatLng();
+            window.open(`http://googleusercontent.com/maps.google.com/maps?saddr=${pos.lat},${pos.lng}&daddr=${encodeURIComponent(dest)}&dirflg=d`, '_blank');
+        }
+    </script>
+</body>
+</html>
