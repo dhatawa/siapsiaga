@@ -1,0 +1,125 @@
+/* ============================================================
+   TAB: PERINGATAN DINI
+   ============================================================ */
+.alerts-list {
+  padding: 12px 16px 0;
+}
+
+.alert-item {
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  animation: fadeUp 0.4s ease both;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.alert-item:hover {
+  transform: translateX(3px);
+  box-shadow: var(--shadow-md);
+}
+
+.al-crit {
+  border-color: var(--red);
+}
+
+.al-warn {
+  border-color: var(--amber);
+}
+
+.al-info {
+  border-color: var(--sky);
+}
+
+.al-level {
+  font-size: 10px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.al-level svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.al-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.al-desc {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 4px;
+  line-height: 1.55;
+}
+
+.al-meta {
+  font-size: 10px;
+  color: var(--ink-4);
+  margin-top: 8px;
+  font-weight: 600;
+  display: flex;
+  gap: 12px;
+}
+
+/* Subscription form */
+.sub-form-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  margin-bottom: 10px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--off);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.sub-form-input:focus {
+  border-color: var(--red);
+  background: var(--white);
+}
+
+.sub-form-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--red) 0%, #ff6b35 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-weight: 800;
+  font-size: 14px;
+  font-family: var(--font);
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--red-glow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sub-form-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--red-glow);
+}
+
+.sub-form-btn:active {
+  transform: scale(0.98);
+}

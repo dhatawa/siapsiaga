@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#E63946" />
+    <meta
+      name="description"
+      content="SiapSiaga – Platform peringatan dini bencana real-time untuk masyarakat Bandung & Indonesia. Cuaca, CCTV AI, hingga edukasi mitigasi."
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SiapSiaga" />
+    <title>SiapSiaga v3.5 – Siap Menghadapi Bencana</title>
+    <link rel="manifest" href="manifest.json" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- ============ EMERGENCY TOAST NOTIFICATION ============ -->
+      <div
+        id="emergency-toast"
+        class="emergency-toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="toast-glow"></div>
+        <div class="toast-content">
+          <div class="toast-icon-wrap">
+            <svg
+              class="toast-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <div class="toast-body">
+            <div class="toast-label">PERINGATAN DARURAT</div>
+            <div class="toast-title" id="toast-title">
+              Waspada Banjir Bandang
+            </div>
+            <div class="toast-desc" id="toast-desc">
+              Tinggi air meningkat drastis di area Dayeuhkolot. Segera evakuasi
+              ke dataran tinggi.
+            </div>
+          </div>
+          <button
+            class="toast-close"
+            onclick="dismissToast()"
+            aria-label="Tutup notifikasi"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="toast-progress" id="toast-progress"></div>
+      </div>
+
+      <div id="views" role="main">
+        <!-- ============ TAB 2: EDUKASI ============ -->
+        <div
+          class="view active"
+          id="view-edukasi"
+          role="tabpanel"
+          aria-labelledby="nav-edukasi"
+        >
+          <div class="view-header">
+            <div class="header-row">
+              <div class="app-brand">
+                <div class="brand-mark" aria-hidden="true">S</div>
+                <div class="brand-name">Siap<span>Siaga</span></div>
+              </div>
+            </div>
+            <div class="view-title">Edukasi Bencana</div>
+            <div class="view-subtitle">
+              Panduan sebelum, saat &amp; sesudah bencana
+            </div>
+          </div>
+
+          <div
+            class="edu-type-row"
+            role="toolbar"
+            aria-label="Filter jenis bencana"
+          >
+            <button
+              class="etab active"
+              onclick="filterEdu('all', this)"
+              aria-pressed="true"
+            >
+              Semua
+            </button>
+            <button
+              class="etab"
+              onclick="filterEdu('banjir', this)"
+              aria-pressed="false"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M3 15s1-1 4-1 5.5 2 8 2 4-1 4-1" />
+                <path d="M3 19s1-1 4-1 5.5 2 8 2 4-1 4-1" />
+                <path
+                  d="M5 8.5C5 6 7 4 9.5 4S14 6 14 8.5c0 3.5-4.5 9-4.5 9S5 12 5 8.5z"
+                />
+              </svg>
+              Banjir
+            </button>
+            <button
+              class="etab"
+              onclick="filterEdu('gempa', this)"
+              aria-pressed="false"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <polygon points="12 2 22 22 2 22" />
+              </svg>
+              Gempa
+            </button>
+            <button
+              class="etab"
+              onclick="filterEdu('gunung', this)"
+              aria-pressed="false"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 19H5a2 2 0 01-1.72-3L10 4a2 2 0 013.44 0l2.53 4.34M16 8l4.28 7.38A2 2 0 0118.56 19H13"
+                />
+                <path d="M16 8v-2a1 1 0 00-1-1h-2" />
+              </svg>
+              Gunung Api
+            </button>
+            <button
+              class="etab"
+              onclick="filterEdu('longsor', this)"
+              aria-pressed="false"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M3 21l7-7 4 4 7-7" />
+                <path d="M21 15V21H15" />
+              </svg>
+              Longsor
+            </button>
+          </div>
+
+          <div id="edu-list">
+            <!-- Banjir -->
+            <div class="dis-card fade-in" data-type="banjir">
+              <div
+                class="dis-head"
+                onclick="toggleDis(this)"
+                role="button"
+                aria-expanded="false"
+                tabindex="0"
+              >
+                <div class="dis-head-l">
+                  <div class="dis-emoji" style="background: #ebf8ff">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#1D4ED8"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3 15s1-1 4-1 5.5 2 8 2 4-1 4-1M3 19s1-1 4-1 5.5 2 8 2 4-1 4-1M18 7.5a3 3 0 10-6 0c0 4 3 8 3 8s3-4 3-8z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="dis-title">Banjir</div>
+                    <div class="dis-meta">
+                      3 fase respons · Risiko tinggi di Bandung
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <div class="badge badge-red">Tinggi</div>
+                  <svg
+                    class="dis-chevron"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </div>
+              <div class="dis-body">
+                <div class="dis-inner">
+                  <div class="phase-row" role="tablist">
+                    <button
+                      class="ptab active"
+                      onclick="switchFase(this, 0)"
+                      role="tab"
+                      aria-selected="true"
+                    >
+                      Sebelum
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 1)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Saat Terjadi
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 2)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Sesudah
+                    </button>
+                  </div>
+                  <div class="fase-content" data-type="banjir" role="tabpanel">
+                      <div class="phase-panel" style="display:block;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Pantau informasi cuaca dan peringatan dini dari BMKG.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Siapkan Tas Siaga Bencana dan amankan dokumen penting di tempat tinggi.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Segera evakuasi ke tempat yang lebih tinggi dan aman.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Matikan saluran listrik dan gas dari meteran utama.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Jangan langsung kembali ke rumah sebelum dinyatakan aman.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Bersihkan rumah dari lumpur dan gunakan alas kaki pelindung.</div></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gempa -->
+            <div
+              class="dis-card fade-in"
+              data-type="gempa"
+              style="animation-delay: 0.05s"
+            >
+              <div
+                class="dis-head"
+                onclick="toggleDis(this)"
+                role="button"
+                aria-expanded="false"
+                tabindex="0"
+              >
+                <div class="dis-head-l">
+                  <div class="dis-emoji" style="background: #fffbea">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#B45309"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      aria-hidden="true"
+                    >
+                      <polygon points="12 2 22 22 2 22" />
+                      <line x1="12" y1="9" x2="12" y2="14" />
+                      <circle cx="12" cy="17" r=".5" fill="#B45309" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="dis-title">Gempa Bumi</div>
+                    <div class="dis-meta">
+                      3 fase respons · Jawa Barat aktif seismik
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <div class="badge badge-yellow">Sedang</div>
+                  <svg
+                    class="dis-chevron"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </div>
+              <div class="dis-body">
+                <div class="dis-inner">
+                  <div class="phase-row" role="tablist">
+                    <button
+                      class="ptab active"
+                      onclick="switchFase(this, 0)"
+                      role="tab"
+                      aria-selected="true"
+                    >
+                      Sebelum
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 1)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Saat Terjadi
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 2)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Sesudah
+                    </button>
+                  </div>
+                  <div class="fase-content" data-type="gempa" role="tabpanel">
+                      <div class="phase-panel" style="display:block;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Kenali rute evakuasi dan titik kumpul di lingkungan Anda.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Perkuat struktur bangunan dan jangan taruh barang berat di atas lemari.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Berlindung di bawah meja yang kuat (Drop, Cover, Hold On).</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Jauhi kaca, jendela, dan benda yang mudah jatuh.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Periksa sekeliling dari potensi kebakaran atau kebocoran gas.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Evakuasi keluar bangunan melalui tangga darurat (jangan gunakan lift).</div></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gunung Api -->
+            <div
+              class="dis-card fade-in"
+              data-type="gunung"
+              style="animation-delay: 0.1s"
+            >
+              <div
+                class="dis-head"
+                onclick="toggleDis(this)"
+                role="button"
+                aria-expanded="false"
+                tabindex="0"
+              >
+                <div class="dis-head-l">
+                  <div class="dis-emoji" style="background: #fff3ee">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#C2410C"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M8 19H5a2 2 0 01-1.72-3L10 4a2 2 0 013.44 0l2.53 4.34M16 8l4.28 7.38A2 2 0 0118.56 19H13"
+                      />
+                      <path d="M9 12l2 3 1.5-2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="dis-title">Gunung Berapi</div>
+                    <div class="dis-meta">
+                      3 fase respons · Pantau status PVMBG
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <div class="badge badge-teal">Pantau</div>
+                  <svg
+                    class="dis-chevron"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </div>
+              <div class="dis-body">
+                <div class="dis-inner">
+                  <div class="phase-row" role="tablist">
+                    <button
+                      class="ptab active"
+                      onclick="switchFase(this, 0)"
+                      role="tab"
+                      aria-selected="true"
+                    >
+                      Sebelum
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 1)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Saat Terjadi
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 2)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Sesudah
+                    </button>
+                  </div>
+                  <div class="fase-content" data-type="gunung" role="tabpanel">
+                      <div class="phase-panel" style="display:block;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Pantau tingkat status gunung (Waspada, Siaga, Awas).</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Siapkan masker standar (N95) dan kacamata pelindung.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Gunakan masker dan kacamata untuk menghindari abu vulkanik.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Ikuti instruksi evakuasi petugas menjauhi zona bahaya letusan.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Hindari daerah aliran sungai yang berpotensi menjadi lahar dingin.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Bersihkan atap rumah dari timbunan abu agar tidak ambruk.</div></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Longsor -->
+            <div
+              class="dis-card fade-in"
+              data-type="longsor"
+              style="animation-delay: 0.15s"
+            >
+              <div
+                class="dis-head"
+                onclick="toggleDis(this)"
+                role="button"
+                aria-expanded="false"
+                tabindex="0"
+              >
+                <div class="dis-head-l">
+                  <div class="dis-emoji" style="background: #eaf8ed">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#047857"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 21l7-7 4 4 7-7" />
+                      <path d="M21 15V21H15" />
+                      <circle cx="8" cy="8" r="3" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="dis-title">Tanah Longsor</div>
+                    <div class="dis-meta">
+                      3 fase respons · Bandung rawan longsor
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <div class="badge badge-yellow">Sedang</div>
+                  <svg
+                    class="dis-chevron"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </div>
+              <div class="dis-body">
+                <div class="dis-inner">
+                  <div class="phase-row" role="tablist">
+                    <button
+                      class="ptab active"
+                      onclick="switchFase(this, 0)"
+                      role="tab"
+                      aria-selected="true"
+                    >
+                      Sebelum
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 1)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Saat Terjadi
+                    </button>
+                    <button
+                      class="ptab"
+                      onclick="switchFase(this, 2)"
+                      role="tab"
+                      aria-selected="false"
+                    >
+                      Sesudah
+                    </button>
+                  </div>
+                  <div class="fase-content" data-type="longsor" role="tabpanel">
+                      <div class="phase-panel" style="display:block;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Kenali tanda retakan tanah dan siapkan tas siaga bencana.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Waspada saat curah hujan sangat tinggi dalam waktu lama.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Jangan panik, segera lari ke tempat yang lebih tinggi dan stabil.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Tinggalkan rumah dan barang-barang, selamatkan nyawa Anda.</div></div>
+                      </div>
+                      <div class="phase-panel" style="display:none;">
+                        <div class="tip-row"><div class="tip-n">1</div><div>Jauhi area longsoran karena rawan terjadi longsor susulan.</div></div>
+                        <div class="tip-row"><div class="tip-n">2</div><div>Hubungi petugas atau tim SAR untuk bantuan penanganan.</div></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="height: 16px"></div>
+        </div>
+
+        
+        </div>
+      <!-- end #views -->
+
+      <!-- ============ FLOATING CHATBOT BUTTON & MODAL ============ -->
+      <div class="chatbot-fab-wrapper">
+        <button
+          class="chatbot-fab status-aman"
+          id="chatbot-fab"
+          onclick="toggleChatModal()"
+          aria-label="Buka assistant chat"
+        >
+          <div class="fab-pulse-ring"></div>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            ></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- CHAT MODAL BOTTOM SHEET -->
+      <div
+        class="chat-modal-overlay"
+        id="chat-modal-overlay"
+        onclick="toggleChatModal()"
+      ></div>
+      <div
+        class="chat-modal"
+        id="chat-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="chat-modal-title"
+      >
+        <div class="chat-modal-drag-handle"><span></span></div>
+        <div class="chat-modal-header">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="bot-avatar">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1v2h-1v1a5 5 0 01-5 5H9a5 5 0 01-5-5v-1H3v-2h1a7 7 0 017-7h1V5.73A2 2 0 0110 4a2 2 0 012-2M9 13v2h2v-2H9m4 0v2h2v-2h-2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <div
+                id="chat-modal-title"
+                style="font-size: 14px; font-weight: 800; color: var(--ink)"
+              >
+                SiagaBot Assistant
+              </div>
+              <div
+                style="font-size: 11px; color: var(--emerald); font-weight: 600"
+                id="chat-modal-status"
+              >
+                Online
+              </div>
+            </div>
+          </div>
+          <button
+            class="chat-close-btn"
+            onclick="toggleChatModal()"
+            aria-label="Tutup chat"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="chat-modal-body" id="chat-body" aria-live="polite">
+          <div class="chat-msg chat-msg-bot">
+            Halo! Saya SiagaBot, asisten cerdas Anda. Ada yang bisa saya bantu
+            terkait peringatan bencana hari ini?
+          </div>
+          <!-- Dummy chat for demonstration -->
+          <div class="chat-msg chat-msg-user">
+            Bagaimana dengan aliran air sungai hari ini?
+          </div>
+          <div class="chat-msg chat-msg-bot">
+            Berdasarkan pantauan CCTv AI terkini, keadaan aliran sungai masih
+            normal dan aman. Tidak perlu khawatir.
+          </div>
+        </div>
+        <div class="chat-modal-input-area">
+          <input
+            type="text"
+            placeholder="Tanya sesuatu..."
+            class="chat-input"
+            id="chat-input"
+            onkeypress="if (event.key === 'Enter') sendChatMessage();"
+          />
+          <button
+            class="chat-send-btn"
+            onclick="sendChatMessage()"
+            aria-label="Kirim pesan"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============ FLOATING BOTTOM NAVIGATION ============ -->
+      <nav id="bottom-nav"  aria-label="Navigasi utama">
+        <a href="index.html" class="nav-btn" 
+          
+          id="nav-home"
+          
+          
+          
+          aria-controls="view-home"
+        >
+          <div class="nav-pill">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <div class="nav-label">Beranda</div>
+        </a>
+        <a  href="edukasi.html"  
+          
+          id="nav-edukasi"  class="nav-btn active" 
+          
+          
+          
+          aria-controls="view-edukasi"
+        >
+          <div class="nav-pill">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+              <path
+                d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"
+              />
+            </svg>
+          </div>
+          <div class="nav-label">Edukasi</div>
+        </a>
+        <a href="alerts.html" class="nav-btn" 
+          
+          id="nav-peringatan"
+          
+          
+          
+          aria-controls="view-peringatan"
+        >
+          <div class="nav-pill">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+          </div>
+          <div class="nav-label">Alerts</div>
+        </a>
+        <a href="cctv.html" class="nav-btn" 
+          
+          id="nav-cctv"
+          
+          
+          
+          aria-controls="view-cctv"
+        >
+          <div class="nav-pill">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polygon points="23 7 16 12 23 17 23 7" />
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
+          </div>
+          <div class="nav-label">CCTV</div>
+        </a>
+        <a href="berita.html" class="nav-btn" 
+          
+          id="nav-berita"
+          
+          
+          
+          aria-controls="view-berita"
+        >
+          <div class="nav-pill">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a4 4 0 01-4-4V6"
+              />
+              <path d="M18 14H9M18 10H9M18 6h-5" />
+            </svg>
+          </div>
+          <div class="nav-label">Berita</div>
+        </a>
+      </nav>
+    </div>
+    <!-- end #app -->
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) => console.log("Service Worker registered:", reg.scope))
+            .catch((err) =>
+              console.log("Service Worker registration failed:", err),
+            );
+        });
+      }
+    </script>
+  </body>
+</html>
