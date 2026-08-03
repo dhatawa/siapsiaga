@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SiapSiaga – Platform peringatan dini bencana real-time untuk masyarakat Bandung & Indonesia. Cuaca, CCTV AI, edukasi mitigasi." />
+    <title>SiapSiaga – Siap Hadapi Bencana, Selamatkan Nyawa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <!-- Top Alert -->
+    <div class="top-alert">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>WASPADA: Potensi hujan lebat disertai angin kencang di wilayah Jawa Barat — 4 Mei 2026</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <nav>
+        <a href="#" class="logo">
+          <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+          Siap<span>Siaga</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#cuaca">Cuaca</a></li>
+          <li><a href="#peringatan">Peringatan</a></li>
+          <li><a href="#edukasi">Edukasi</a></li>
+          <li><a href="#cctv">CCTV</a></li>
+          <li><a href="#berita">Berita</a></li>
+          <li><a href="#notifikasi" class="nav-cta"><i class="fas fa-bell"></i> Notifikasi</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="cuaca">
+      <div class="hero-container">
+        <div class="hero-content fade-in">
+          <h1>Siaga Hadapi Bencana <span>Bersama Masyarakat</span></h1>
+          <p>Platform informasi bencana real-time untuk meningkatkan kesiapsiagaan masyarakat Indonesia. Dapatkan peringatan dini, pantau CCTV AI, dan akses edukasi mitigasi kapan saja.</p>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+              <div>
+                <div class="stat-value">514 Kab/Kota</div>
+                <div class="stat-text">Area Monitoring</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon"><i class="fas fa-satellite-dish"></i></div>
+              <div>
+                <div class="stat-value">Real-Time</div>
+                <div class="stat-text">Data BMKG & BNPB</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-buttons">
+            <a href="#peringatan" class="btn btn-primary"><i class="fas fa-bell"></i> Status Bencana</a>
+            <a href="#edukasi" class="btn btn-secondary"><i class="fas fa-book-open"></i> Panduan Siaga</a>
+          </div>
+        </div>
+
+        <!-- Weather Card — Data Bandung 4 Mei 2026 -->
+        <div class="weather-card slide-in">
+          <div class="location-header">
+            <div class="location-info">
+              <h2><i class="fas fa-map-pin" style="color:var(--primary)"></i> Bandung, Jawa Barat</h2>
+              <p>Koordinat: 6°54′S 107°36′E &nbsp;|&nbsp; Ket: 768 mdpl</p>
+            </div>
+            <div class="live-badge">LIVE</div>
+          </div>
+
+          <div class="weather-main">
+            <div class="temperature">24<sup>°C</sup></div>
+            <i class="fas fa-cloud-rain weather-icon-large" style="color:#60a5fa"></i>
+          </div>
+          <div class="weather-desc">Hujan Ringan – Berawan Tebal</div>
+
+          <div class="weather-grid">
+            <div class="weather-item">
+              <i class="fas fa-tint"></i>
+              <div class="weather-item-label">Kelembaban</div>
+              <div class="weather-item-value">88%</div>
+            </div>
+            <div class="weather-item">
+              <i class="fas fa-wind"></i>
+              <div class="weather-item-label">Angin</div>
+              <div class="weather-item-value">18 km/j</div>
+            </div>
+            <div class="weather-item">
+              <i class="fas fa-eye"></i>
+              <div class="weather-item-label">Visibilitas</div>
+              <div class="weather-item-value">6 km</div>
+            </div>
+          </div>
+
+          <div class="forecast-section">
+            <div class="forecast-title">Prakiraan 7 Hari ke Depan</div>
+            <div class="forecast-scroll">
+              <div class="forecast-item">
+                <div class="forecast-time">Min</div>
+                <i class="fas fa-cloud-rain forecast-icon" style="color:#60a5fa"></i>
+                <div class="forecast-temp">23°</div>
+              </div>
+              <div class="forecast-item">
+                <div class="forecast-time">Sen</div>
+                <i class="fas fa-cloud-showers-heavy forecast-icon" style="color:#3b82f6"></i>
+                <div class="forecast-temp">22°</div>
+              </div>
+              <div class="forecast-item">
+                <div class="forecast-time">Sel</div>
+                <i class="fas fa-cloud-sun forecast-icon" style="color:#f59e0b"></i>
+                <div class="forecast-temp">26°</div>
+              </div>
+              <div class="forecast-item">
+                <div class="forecast-time">Rab</div>
+                <i class="fas fa-sun forecast-icon" style="color:#f59e0b"></i>
+                <div class="forecast-temp">28°</div>
+              </div>
+              <div class="forecast-item">
+                <div class="forecast-time">Kam</div>
+                <i class="fas fa-cloud-sun forecast-icon" style="color:#f59e0b"></i>
+                <div class="forecast-temp">27°</div>
+              </div>
+              <div class="forecast-item">
+                <div class="forecast-time">Jum</div>
+                <i class="fas fa-cloud forecast-icon" style="color:#9ca3af"></i>
+                <div class="forecast-temp">25°</div>
+              </div>
+              <div class="forecast-item">
+                <div class="forecast-time">Sab</div>
+                <i class="fas fa-cloud-rain forecast-icon" style="color:#60a5fa"></i>
+                <div class="forecast-temp">24°</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerts Section -->
+    <section class="alerts-section" id="peringatan">
+      <div class="section-header">
+        <span class="section-label">Status Bencana</span>
+        <h2 class="section-title">Peringatan Dini Aktif</h2>
+        <p class="section-subtitle">Pantau kondisi bencana real-time di Jawa Barat dan seluruh Indonesia. Ikuti instruksi dari BNPB dan BPBD setempat.</p>
+      </div>
+
+      <div class="alert-banner">
+        <div class="alert-icon-large"><i class="fas fa-exclamation"></i></div>
+        <div class="alert-content">
+          <h3>4 Peringatan Aktif</h3>
+          <p>Banjir, gempa susulan, longsor, dan cuaca ekstrem aktif di Jawa Barat — 4 Mei 2026</p>
+        </div>
+        <button class="alert-toggle"><i class="fas fa-bell"></i> Berlangganan</button>
+      </div>
+
+      <div class="disaster-grid">
+        <div class="disaster-card banjir">
+          <div class="disaster-icon"><i class="fas fa-water"></i></div>
+          <div class="disaster-status">WASPADA</div>
+          <h3>Banjir</h3>
+          <p>Debit air Sungai Citarum meningkat signifikan akibat hujan intensitas tinggi. Warga bantaran sungai diminta bersiap evakuasi mandiri.</p>
+          <div class="disaster-meta">
+            <span><i class="fas fa-map-marker-alt"></i> 14 Kelurahan</span>
+            <span><i class="fas fa-clock"></i> 1 jam lalu</span>
+          </div>
+          <div class="disaster-phases">
+            <div class="phase-tag active">Sebelum</div>
+            <div class="phase-tag">Saat</div>
+            <div class="phase-tag">Sesudah</div>
+          </div>
+        </div>
+
+        <div class="disaster-card gempa">
+          <div class="disaster-icon"><i class="fas fa-mountain"></i></div>
+          <div class="disaster-status" style="background:#fee2e2;color:var(--primary)">AKTIF</div>
+          <h3>Gempa Bumi</h3>
+          <p>Gempa M4.1 mengguncang Garut Selatan pukul 06:43 WIB. Tidak berpotensi tsunami. Waspada gempa susulan di radius 50 km.</p>
+          <div class="disaster-meta">
+            <span><i class="fas fa-map-marker-alt"></i> Garut Selatan</span>
+            <span><i class="fas fa-clock"></i> 3 jam lalu</span>
+          </div>
+          <div class="disaster-phases">
+            <div class="phase-tag">Sebelum</div>
+            <div class="phase-tag active">Saat</div>
+            <div class="phase-tag">Sesudah</div>
+          </div>
+        </div>
+
+        <div class="disaster-card gunung">
+          <div class="disaster-icon"><i class="fas fa-volcano"></i></div>
+          <div class="disaster-status" style="background:#fef3c7;color:#92400e">SIAGA</div>
+          <h3>Gunung Berapi</h3>
+          <p>Status Gunung Tangkuban Parahu naik ke Level II (Waspada). Radius 2 km dari kawah dilarang aktivitas. Hindari area sekitar kawah.</p>
+          <div class="disaster-meta">
+            <span><i class="fas fa-map-marker-alt"></i> Subang–Bandung</span>
+            <span><i class="fas fa-clock"></i> 5 jam lalu</span>
+          </div>
+          <div class="disaster-phases">
+            <div class="phase-tag active">Sebelum</div>
+            <div class="phase-tag">Saat</div>
+            <div class="phase-tag">Sesudah</div>
+          </div>
+        </div>
+
+        <div class="disaster-card longsor">
+          <div class="disaster-icon"><i class="fas fa-hill-rockslide"></i></div>
+          <div class="disaster-status" style="background:#fef3c7;color:#92400e">WASPADA</div>
+          <h3>Tanah Longsor</h3>
+          <p>Curah hujan >80 mm/hari memicu risiko longsor di wilayah lereng Priangan Timur. Hindari lereng curam dan daerah rawan longsor.</p>
+          <div class="disaster-meta">
+            <span><i class="fas fa-map-marker-alt"></i> 9 Titik Rawan</span>
+            <span><i class="fas fa-clock"></i> 2 jam lalu</span>
+          </div>
+          <div class="disaster-phases">
+            <div class="phase-tag active">Sebelum</div>
+            <div class="phase-tag">Saat</div>
+            <div class="phase-tag">Sesudah</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="education-section" id="edukasi">
+      <div class="section-header">
+        <span class="section-label">Edukasi Bencana</span>
+        <h2 class="section-title">Panduan Kesiapsiagaan</h2>
+        <p class="section-subtitle">Pelajari langkah-langkah penting sebelum, saat, dan sesudah bencana untuk melindungi diri dan keluarga.</p>
+      </div>
+
+      <div class="edu-grid">
+        <div class="edu-card">
+          <div class="edu-image banjir"><i class="fas fa-water"></i></div>
+          <div class="edu-content">
+            <span class="edu-tag">Banjir</span>
+            <h3>Panduan Lengkap Menghadapi Banjir</h3>
+            <p>Persiapan mitigasi, prosedur evakuasi darurat, dan pemulihan pasca banjir agar keluarga tetap selamat.</p>
+            <a href="#" class="edu-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-image gempa"><i class="fas fa-house-crack"></i></div>
+          <div class="edu-content">
+            <span class="edu-tag" style="background:#fee2e2;color:var(--primary)">Gempa Bumi</span>
+            <h3>Protokol Keselamatan Saat Gempa</h3>
+            <p>Teknik Drop, Cover, Hold On. Persiapan tas siaga darurat dan rencana komunikasi keluarga pasca gempa.</p>
+            <a href="#" class="edu-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-image gunung"><i class="fas fa-volcano"></i></div>
+          <div class="edu-content">
+            <span class="edu-tag" style="background:#fef3c7;color:#92400e">Gunung Berapi</span>
+            <h3>Mitigasi Erupsi Gunung Berapi</h3>
+            <p>Pemahaman zona bahaya, penggunaan masker N95, dan prosedur evakuasi saat status gunung meningkat.</p>
+            <a href="#" class="edu-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-image longsor"><i class="fas fa-hill-rockslide"></i></div>
+          <div class="edu-content">
+            <span class="edu-tag" style="background:#e5e7eb;color:#374151">Longsor</span>
+            <h3>Identifikasi & Evakuasi Longsor</h3>
+            <p>Kenali tanda-tanda awal tanah longsor, jalur evakuasi aman, dan cara melaporkan kejadian ke BPBD.</p>
+            <a href="#" class="edu-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CCTV Section -->
+    <section class="cctv-section" id="cctv">
+      <div class="section-header">
+        <span class="section-label" style="background:rgba(255,255,255,0.1);color:white">Monitoring Visual</span>
+        <h2 class="section-title" style="color:white">CCTV Live & Analisis AI</h2>
+        <p class="section-subtitle" style="color:#94a3b8">Pantau kondisi real-time titik-titik kritis dengan sistem deteksi banjir berbasis AI YOLO.</p>
+      </div>
+
+      <div class="cctv-grid">
+        <div class="cctv-card">
+          <div class="cctv-feed">
+            <i class="fas fa-video"></i>
+            <div class="cctv-status"><i class="fas fa-circle"></i> LIVE AI</div>
+          </div>
+          <div class="cctv-info">
+            <div class="cctv-location"><i class="fas fa-map-marker-alt"></i> Sungai Citarum – Nanjung</div>
+            <div class="cctv-ai"><i class="fas fa-robot"></i> AI: <strong style="color:white">Aman</strong> — Level air normal (47 cm)</div>
+          </div>
+        </div>
+
+        <div class="cctv-card">
+          <div class="cctv-feed">
+            <i class="fas fa-video"></i>
+            <div class="cctv-status"><i class="fas fa-circle"></i> LIVE AI</div>
+          </div>
+          <div class="cctv-info">
+            <div class="cctv-location"><i class="fas fa-map-marker-alt"></i> Jl. Soekarno-Hatta – Km.7</div>
+            <div class="cctv-ai"><i class="fas fa-robot"></i> AI: <strong style="color:#fcd34d">Waspada</strong> — Genangan terdeteksi</div>
+          </div>
+        </div>
+
+        <div class="cctv-card">
+          <div class="cctv-feed">
+            <i class="fas fa-video"></i>
+            <div class="cctv-status offline"><i class="fas fa-circle"></i> OFFLINE</div>
+          </div>
+          <div class="cctv-info">
+            <div class="cctv-location"><i class="fas fa-map-marker-alt"></i> Pintu Air Dayeuhkolot</div>
+            <div class="cctv-ai"><i class="fas fa-wrench"></i> Pemeliharaan — Kembali online pukul 14.00</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section" id="berita">
+      <div class="section-header">
+        <span class="section-label">Informasi Terkini</span>
+        <h2 class="section-title">Berita & Update Bencana</h2>
+        <p class="section-subtitle">Informasi terpercaya dari BMKG, BNPB, PVMBG, dan instansi kebencanaan Indonesia.</p>
+      </div>
+
+      <div class="news-grid">
+        <div class="news-main">
+          <article class="news-card-large">
+            <div class="news-image" style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%)">
+              <i class="fas fa-cloud-showers-heavy"></i>
+              <span class="news-badge">TERBARU</span>
+            </div>
+            <div class="news-content-large">
+              <div class="news-meta">
+                <span><i class="fas fa-building"></i> BMKG</span>
+                <span><i class="fas fa-clock"></i> 2 jam lalu</span>
+                <span><i class="fas fa-tag"></i> Cuaca Ekstrem</span>
+              </div>
+              <h3>BMKG: Waspada Hujan Lebat & Angin Kencang di Jawa Barat Hingga 48 Jam ke Depan</h3>
+              <p>Badan Meteorologi, Klimatologi, dan Geofisika (BMKG) mengeluarkan peringatan dini cuaca ekstrem untuk wilayah Jawa Barat. Hujan dengan intensitas sedang hingga lebat disertai petir dan angin kencang diprakirakan terjadi di hampir seluruh wilayah Jawa Barat hingga Senin, 6 Mei 2026. Masyarakat diimbau waspada terhadap potensi banjir bandang dan tanah longsor di wilayah lereng...</p>
+            </div>
+          </article>
+
+          <article class="news-card-large">
+            <div class="news-image" style="background:linear-gradient(135deg,#7c2d12 0%,#dc2626 100%)">
+              <i class="fas fa-volcano"></i>
+              <span class="news-badge">URGENT</span>
+            </div>
+            <div class="news-content-large">
+              <div class="news-meta">
+                <span><i class="fas fa-building"></i> PVMBG</span>
+                <span><i class="fas fa-clock"></i> 5 jam lalu</span>
+                <span><i class="fas fa-tag"></i> Gunung Berapi</span>
+              </div>
+              <h3>PVMBG Naikkan Status Tangkuban Parahu ke Level II (Waspada)</h3>
+              <p>Pusat Vulkanologi dan Mitigasi Bencana Geologi (PVMBG) menaikkan status aktivitas Gunung Tangkuban Parahu dari Normal menjadi Waspada (Level II). Peningkatan ini berdasarkan pengamatan kegempaan vulkanik yang meningkat dalam 72 jam terakhir. Radius 2 km dari kawah ditetapkan sebagai zona berbahaya. Wisatawan dan warga dilarang mendekati kawah aktif...</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="news-sidebar">
+          <div class="news-item-small">
+            <div class="news-thumb"><i class="fas fa-water"></i></div>
+            <div>
+              <h4>12 Pos Pantau Sungai Citarum Berstatus Siaga Banjir</h4>
+              <div class="time"><i class="fas fa-clock"></i> 30 menit lalu</div>
+            </div>
+          </div>
+
+          <div class="news-item-small">
+            <div class="news-thumb"><i class="fas fa-house-crack"></i></div>
+            <div>
+              <h4>Gempa M4.1 Garut Selatan — BMKG: Tidak Berpotensi Tsunami</h4>
+              <div class="time"><i class="fas fa-clock"></i> 3 jam lalu</div>
+            </div>
+          </div>
+
+          <div class="news-item-small">
+            <div class="news-thumb"><i class="fas fa-hill-rockslide"></i></div>
+            <div>
+              <h4>Longsor Tutup Akses Jalan Nasional Bandung–Sumedang</h4>
+              <div class="time"><i class="fas fa-clock"></i> 4 jam lalu</div>
+            </div>
+          </div>
+
+          <div class="news-item-small">
+            <div class="news-thumb"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+              <h4>BNPB Gelar Simulasi Evakuasi Banjir di 50 Sekolah Bandung Raya</h4>
+              <div class="time"><i class="fas fa-clock"></i> 6 jam lalu</div>
+            </div>
+          </div>
+
+          <div class="news-item-small">
+            <div class="news-thumb"><i class="fas fa-hand-holding-heart"></i></div>
+            <div>
+              <h4>BPBD Jabar Kirim 500 Paket Logistik ke Pengungsi Banjir Dayeuhkolot</h4>
+              <div class="time"><i class="fas fa-clock"></i> 7 jam lalu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notification Section -->
+    <section id="notifikasi" style="background:linear-gradient(135deg,#fef2f2 0%,#fff7ed 100%);padding:60px 24px;">
+      <div style="max-width:560px;margin:0 auto;text-align:center;">
+        <span class="section-label">Notifikasi Real-Time</span>
+        <h2 class="section-title">Dapatkan Peringatan Instan</h2>
+        <p class="section-subtitle" style="margin-bottom:28px;">Kami kirimkan notifikasi segera jika ada ancaman bencana di area Anda. Gratis, tidak ada spam.</p>
+        <div style="display:flex;gap:10px;max-width:420px;margin:0 auto;">
+          <input type="email" placeholder="Masukkan email Anda..." style="flex:1;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          <button class="btn btn-primary" style="white-space:nowrap;"><i class="fas fa-bell"></i> Daftar</button>
+        </div>
+        <p style="font-size:12px;color:#9ca3af;margin-top:12px;">Dengan mendaftar, Anda menyetujui kebijakan privasi SiapSiaga.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h2><i class="fas fa-shield-alt" style="color:var(--primary)"></i> SiapSiaga</h2>
+          <p>Platform kesiapsiagaan bencana berbasis AI untuk seluruh masyarakat Indonesia. Dikembangkan dengan semangat melindungi dan menyelamatkan nyawa.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <h4>Navigasi</h4>
+          <ul>
+            <li><a href="#cuaca">Prakiraan Cuaca</a></li>
+            <li><a href="#peringatan">Peringatan Dini</a></li>
+            <li><a href="#edukasi">Edukasi Bencana</a></li>
+            <li><a href="#cctv">CCTV AI Online</a></li>
+            <li><a href="#berita">Berita Terkini</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Instansi Terkait</h4>
+          <ul>
+            <li><a href="https://bmkg.go.id" target="_blank">BMKG</a></li>
+            <li><a href="https://bnpb.go.id" target="_blank">BNPB</a></li>
+            <li><a href="https://vsi.esdm.go.id" target="_blank">PVMBG</a></li>
+            <li><a href="https://basarnas.go.id" target="_blank">Basarnas</a></li>
+            <li><a href="#" target="_blank">BPBD Jawa Barat</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Kontak Darurat</h4>
+          <ul>
+            <li><a href="tel:117">BNPB: 117</a></li>
+            <li><a href="tel:115">Basarnas: 115</a></li>
+            <li><a href="tel:110">Polisi: 110</a></li>
+            <li><a href="tel:118">Ambulans: 118 / 119</a></li>
+            <li><a href="tel:113">Pemadam: 113</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 SiapSiaga. Dikembangkan untuk keselamatan masyarakat Indonesia.</div>
+        <div style="display:flex;gap:20px;">
+          <a href="#" style="color:#6b7280;text-decoration:none;">Kebijakan Privasi</a>
+          <a href="#" style="color:#6b7280;text-decoration:none;">Syarat Penggunaan</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+  </body>
+</html>

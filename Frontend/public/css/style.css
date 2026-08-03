@@ -1,0 +1,54 @@
+/* ============================================================
+   SIAPSIAGA — Premium Design System v3.0
+   ============================================================ */
+
+@import url("core.css");
+@import url("beranda.css");
+@import url("chatbot.css");
+@import url("edukasi.css");
+@import url("peringatan.css");
+@import url("cctv.css");
+@import url("berita.css");
+@import url("tambahan.css");
+
+/* Sembunyikan Modal & Overlay secara default */
+.emergency-modal, 
+.emergency-modal-overlay,
+.chat-modal,
+.chat-modal-overlay {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Tampilkan saat class .active ditambahkan */
+.emergency-modal.active, 
+.emergency-modal-overlay.active,
+.chat-modal.active,
+.chat-modal-overlay.active {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Styling dasar modal agar melayang (Fixed) */
+.emergency-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.emergency-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9998;
+}

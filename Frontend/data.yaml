@@ -1,0 +1,6 @@
+path: ./flood-dataset
+train: train/images
+val: val/images
+
+nc: 2
+names: ['Normal', 'Banjir']

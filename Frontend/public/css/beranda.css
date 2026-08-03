@@ -1,0 +1,519 @@
+/* ================================================================
+   BERANDA — SECTION HEADERS & GAP
+================================================================ */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.section-more {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--emerald);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.section-block {
+  margin: 0 16px 16px;
+}
+
+/* ================================================================
+   MINI SIAGABOT WIDGET (Beranda)
+   Definisi utama ada di bagian "MINI SIAGA BOT WIDGET" di bawah.
+   Hanya class unik yang ada di sini.
+================================================================ */
+.mini-briefing-card-highlight {
+  align-items: stretch;
+}
+
+.mini-bubble-text.is-fading {
+  opacity: 0;
+}
+
+.mini-siaga-typing {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  height: 16px;
+}
+
+.mini-siaga-typing span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  display: inline-block;
+  animation: siaga-dot-bounce 1.2s infinite ease-in-out;
+}
+
+.mini-siaga-typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.mini-siaga-typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ================================================================
+   CUACA & ANGIN (Versi Warna Teks Gelap/Kontras)
+================================================================ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.weather-wind-grid {
+  align-items: stretch;
+}
+
+.weather-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.weather-card:active {
+  transform: scale(0.98);
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.weather-focus-card,
+.wind-focus-card {
+  min-height: 172px;
+}
+
+/* UBAH WARNA: Judul kartu atas (SUHU & KELEMBAPAN) jadi biru dongker */
+.weather-card-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: #1e3a8a;
+  /* Biru dongker gelap */
+}
+
+.weather-main-focus {
+  align-items: flex-end;
+}
+
+.weather-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+/* UBAH WARNA: Angka suhu (27°) jadi biru tua tegas */
+.weather-temp {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #0f172a;
+  /* Slate sangat gelap */
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* UBAH WARNA: Teks deskripsi (Bandung Cerah Berawan) */
+.weather-desc {
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  /* Abu-abu kebiruan gelap */
+  letter-spacing: 0.2px;
+}
+
+.weather-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.weather-stat-stack {
+  display: flex;
+  align-items: stretch;
+  margin-top: auto;
+}
+
+.weather-stat-block {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  /* Dibuat lebih solid */
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  /* Border lebih jelas */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* UBAH WARNA: Tulisan "KELEMBAPAN" kecil */
+.weather-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #475569;
+  /* Slate keabuan */
+  text-transform: uppercase;
+}
+
+/* UBAH WARNA: Angka persentase (78%) */
+.weather-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: #2563eb;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.weather-pill {
+  font-size: 9px;
+  font-weight: 700;
+  color: #0369a1;
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 6px;
+  padding: 2px 6px;
+  letter-spacing: 0.3px;
+}
+
+.wind-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.wind-card:active {
+  transform: scale(0.98);
+}
+
+.wind-compass {
+  width: 84px;
+  height: 84px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wind-compass svg {
+  filter: drop-shadow(0 0 4px rgba(109, 40, 217, 0.3));
+  /* Shadow diubah jadi lebih gelap */
+}
+
+/* UBAH WARNA: Teks di dalam SVG Kompas (U, T, S, B) biar kelihatan */
+.wind-compass svg text {
+  fill: #4c1d95 !important;
+  /* Ungu sangat tua */
+  font-weight: 800;
+}
+
+.wind-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* UBAH WARNA: Judul kartu angin */
+.wind-card-label {
+  color: #4c1d95;
+  /* Ungu sangat tua */
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* UBAH WARNA: Angka kecepatan angin (18) */
+.wind-speed {
+  font-size: 26px;
+  font-weight: 800;
+  color: #4338ca;
+  /* Indigo gelap */
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.wind-unit {
+  font-size: 11px;
+  color: #334155;
+  font-weight: 700;
+}
+
+/* UBAH WARNA: Arah angin (BD -> TL) */
+.wind-dir-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  color: #5b21b6;
+  /* Ungu kebiruan gelap */
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ================================================================
+   PERBAIKAN BERITA TERKINI YANG HANCUR
+================================================================ */
+.news-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 0 16px 12px 16px; /* give proper side margins instead of parent margin to allow edge-to-edge scrolling */
+  scrollbar-width: none;
+}
+
+.news-scroll::-webkit-scrollbar {
+  display: none;
+  /* Sembunyikan scrollbar di Chrome/Safari */
+}
+
+.news-card {
+  flex: 0 0 auto;
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+.news-card:active { transform: scale(0.98); }
+
+.news-thumb {
+  font-size: 28px;
+  background: #f8fafc;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.news-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.news-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Warna-warni label berita */
+.tag-banjir {
+  color: #3b82f6;
+}
+
+.tag-bnpb {
+  color: #10b981;
+}
+
+.tag-cuaca {
+  color: #8b5cf6;
+}
+
+.tag-gempa {
+  color: #ef4444;
+}
+
+.news-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.news-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* ================================================================
+   CCTV (Beranda preview — definisi utama .cctv-grid ada di Tab CCTV)
+================================================================ */
+
+.cctv-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.cctv-card:active {
+  transform: scale(0.97);
+}
+
+.cctv-thumb {
+  width: 100%;
+  height: 70px;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 22px;
+}
+
+.cctv-live-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.live-online {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.live-offline {
+  background: rgba(100, 100, 100, 0.2);
+  color: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cctv-label {
+  padding: 5px 8px 7px;
+}
+
+.cctv-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cctv-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ================================================================
+   EDUKASI
+================================================================ */
+.edu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.edu-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+  text-align: center;
+}
+
+.edu-card:active {
+  transform: scale(0.96);
+  background: var(--bg-card-hover);
+}
+
+.edu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.edu-icon-banjir {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.edu-icon-gempa {
+  background: rgba(249, 115, 22, 0.15);
+}
+
+.edu-icon-longsor {
+  background: rgba(234, 179, 8, 0.15);
+}
+
+.edu-icon-evakuasi {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.edu-icon-p3k {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.edu-icon-darurat {
+  background: rgba(168, 85, 247, 0.15);
+}
+
+.edu-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
