@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.fade-in-element {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+  will-change: opacity, transform;
+}
+
+.fade-in-element.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.button-scale {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.button-scale:hover,
+.button-scale:focus-visible {
+  transform: scale(1.05);
+  box-shadow: 0 14px 30px rgba(200, 30, 44, 0.18);
+}
+
+section:target {
+  outline: 3px solid rgba(200, 30, 44, 1);
+  outline-offset: 10px;
+  background-color: rgba(200, 30, 44, 0.06);
+}
+
+@layer components {
+  .input {
+    @apply w-full bg-white border border-gray-200 rounded-2xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-primary-700/30 focus:border-primary-700 placeholder:text-gray-400 transition duration-200;
+    min-height: 3rem;
+  }
+
+  .input:-webkit-autofill,
+  .input:-webkit-autofill:hover,
+  .input:-webkit-autofill:focus,
+  .input:-webkit-autofill:active {
+    -webkit-text-fill-color: #111827;
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
+    box-shadow: 0 0 0px 1000px white inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
