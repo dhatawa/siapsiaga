@@ -10,8 +10,9 @@ import { Calendar } from 'lucide-react';
 
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import PageWithChatbot from '../components/PageWithChatbot';
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 
 const newsCategories = [
   'Semua Berita',
@@ -42,9 +43,7 @@ export default function BeritaPage() {
   const [error, setError] =
     useState(null);
 
-  // ========================================
   // FETCH NEWS
-  // ========================================
 
   useEffect(() => {
 
@@ -91,9 +90,7 @@ export default function BeritaPage() {
 
   }, []);
 
-  // ========================================
   // FEATURED
-  // ========================================
 
   const featured =
     newsList[0];
@@ -101,9 +98,7 @@ export default function BeritaPage() {
   const rest =
     newsList.slice(1);
 
-  // ========================================
   // FILTER
-  // ========================================
 
   const filtered = useMemo(() => {
 
@@ -125,9 +120,7 @@ export default function BeritaPage() {
     rest
   ]);
 
-  // ========================================
   // PAGINATION
-  // ========================================
 
   const totalPages =
     Math.max(
@@ -147,9 +140,7 @@ export default function BeritaPage() {
         PAGE_SIZE
     );
 
-  // ========================================
   // LOADING
-  // ========================================
 
   if (loading) {
 
@@ -170,9 +161,7 @@ export default function BeritaPage() {
     );
   }
 
-  // ========================================
   // ERROR
-  // ========================================
 
   if (error) {
 
@@ -195,9 +184,7 @@ export default function BeritaPage() {
     );
   }
 
-  // ========================================
   // EMPTY
-  // ========================================
 
   if (!featured) {
 
@@ -225,12 +212,11 @@ export default function BeritaPage() {
   }
 
   return (
+    <PageWithChatbot>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardNavbar />
 
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-
-      <DashboardNavbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
 
         <h1 className="text-2xl font-bold text-gray-900">
           Berita Terkini
@@ -491,7 +477,7 @@ export default function BeritaPage() {
       </main>
 
       <DashboardFooter />
-
     </div>
+  </PageWithChatbot>
   );
 }

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { FileText, Waves, Home, Flame, Play, Printer, ClipboardList } from 'lucide-react';
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import PageWithChatbot from '../components/PageWithChatbot';
 
 const cards = [
   {
@@ -56,8 +57,9 @@ const checklist = [
 
 export default function EdukasiTipsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavbar />
+    <PageWithChatbot>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardNavbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-900">Panduan Keselamatan & Mitigasi</h1>
@@ -151,5 +153,6 @@ export default function EdukasiTipsPage() {
 
       <DashboardFooter />
     </div>
+  </PageWithChatbot>
   );
 }

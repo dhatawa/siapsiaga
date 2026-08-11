@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import PageWithChatbot from '../components/PageWithChatbot';
 import { videos, videoCategories } from '../data/edukasiData';
 
 export default function VideoTutorialPage() {
@@ -12,10 +13,11 @@ export default function VideoTutorialPage() {
     activeCategory === 'Semua' ? videos : videos.filter((v) => v.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavbar />
+    <PageWithChatbot>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardNavbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <Link to="/edukasi" className="text-xs text-primary-700 hover:underline">
           ← Kembali ke Edukasi & Tips
         </Link>
@@ -73,5 +75,6 @@ export default function VideoTutorialPage() {
 
       <DashboardFooter />
     </div>
+  </PageWithChatbot>
   );
 }

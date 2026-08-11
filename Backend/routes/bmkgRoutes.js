@@ -6,8 +6,6 @@ const {
 
 const router = express.Router();
 
-// GET /api/bmkg/earthquake
-
 router.get('/earthquake', async (req, res) => {
   try {
     const earthquake =

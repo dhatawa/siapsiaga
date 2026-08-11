@@ -83,9 +83,13 @@ export function ChatbotToggleButton({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-brand-red text-white flex items-center justify-center shadow-lg hover:bg-red-700 z-40"
+      className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-brand-red text-white shadow-lg hover:bg-red-700 z-40"
     >
-      <MessageSquare size={20} />
+      <span className="absolute inset-0 rounded-full bg-brand-red/20 animate-ping" />
+      <span className="absolute inset-0 rounded-full border border-white/20" />
+      <span className="relative z-10 flex items-center justify-center w-full h-full">
+        <MessageSquare size={20} />
+      </span>
     </button>
   );
 }

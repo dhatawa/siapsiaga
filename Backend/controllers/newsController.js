@@ -2,9 +2,6 @@ const {
   getDisasterNews
 } = require('../services/gnewsService');
 
-// ========================================
-// GET ALL NEWS
-// ========================================
 
 async function getNews(req, res) {
   try {
@@ -30,9 +27,6 @@ async function getNews(req, res) {
   }
 }
 
-// ========================================
-// GET NEWS DETAIL
-// ========================================
 
 async function getNewsDetail(req, res) {
   try {

@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { CheckCircle2, PhoneCall } from 'lucide-react';
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import PageWithChatbot from '../components/PageWithChatbot';
 import { guides } from '../data/edukasiData';
 
 export default function PanduanLengkapPage() {
@@ -11,10 +12,11 @@ export default function PanduanLengkapPage() {
   if (!guide) return <Navigate to="/edukasi" replace />;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavbar />
+    <PageWithChatbot>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardNavbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <Link to="/edukasi" className="text-xs text-primary-700 hover:underline">
           ← Kembali ke Edukasi & Tips
         </Link>
@@ -104,5 +106,6 @@ export default function PanduanLengkapPage() {
 
       <DashboardFooter />
     </div>
+  </PageWithChatbot>
   );
 }

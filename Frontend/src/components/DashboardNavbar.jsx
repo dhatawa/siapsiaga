@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Megaphone, RefreshCw, ChevronDown, Bell, Menu, X, MessageSquareText, Plus } from 'lucide-react';
+import { Megaphone, RefreshCw, ChevronDown, Bell, Menu, X, Plus } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import ProfileDropdown from './ProfileDropdown';
+import ChatbotPopup, { ChatbotToggleButton } from './ChatbotPopup';
 import LaporModal from './LaporModal';
 
 export default function DashboardNavbar({ user = { name: 'Farid Annas', email: 'farid@mail.com' } }) {
   // State untuk kontrol Popup & Dropdown
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isLaporOpen, setIsLaporOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLaporModalOpen, setIsLaporModalOpen] = useState(false);
 
   // Toggle helpers agar hanya 1 dropdown yang terbuka dalam 1 waktu
   const toggleNotif = () => {
@@ -64,9 +66,10 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             
             {/* Megaphone / Sound Icon */}
             <button 
-            className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50 transition" 
-            onClick={() => setIsLaporOpen(true)}>              
-            <Megaphone size={18} />
+              className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50 transition"
+              onClick={() => setIsLaporModalOpen(true)}
+            >
+              <Megaphone size={18} />
             </button>
 
 
@@ -141,30 +144,24 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             <button 
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                setIsLaporOpen(true);
+                setIsChatOpen(true);
               }}
               className="w-full text-left py-2 text-sm font-semibold text-red-700 flex items-center gap-2"
             >
-              <Plus size={16} /> Buat Laporan Bencana
+              <Plus size={16} /> Buka Chatbot
             </button>
           </div>
         )}
       </header>
 
-      {/* FLOATING ACTION BUTTON (Tombol Utama Lapor Merah di Pojok Kanan Bawah Sesuai Figma) */}
-      <button
-        onClick={() => setIsLaporOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-red-800 hover:bg-red-900 text-white p-3.5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition duration-200 flex items-center justify-center"
-        title="Laporkan Kejadian / Bencana"
-      >
-        <MessageSquareText size={22} />
-      </button>
-
-      {/* MODAL LAPOR */}
-      <LaporModal 
-        isOpen={isLaporOpen} 
-        onClose={() => setIsLaporOpen(false)} 
+      <LaporModal
+        isOpen={isLaporModalOpen}
+        onClose={() => setIsLaporModalOpen(false)}
       />
+
+      {/* FLOATING ACTION BUTTON (Tombol Utama Lapor Merah di Pojok Kanan Bawah Sesuai Figma) */}
+      <ChatbotToggleButton onClick={() => setIsChatOpen(true)} />
+      <ChatbotPopup open={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </>
   );
 }
