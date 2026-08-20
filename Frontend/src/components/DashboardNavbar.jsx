@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Megaphone, RefreshCw, ChevronDown, Bell, Menu, X, Plus } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Megaphone, ChevronDown, Bell, Menu, X, Plus } from 'lucide-react';
+import Swal from 'sweetalert2';
 import NotificationDropdown from './NotificationDropdown';
 import ProfileDropdown from './ProfileDropdown';
 import ChatbotPopup, { ChatbotToggleButton } from './ChatbotPopup';
 import LaporModal from './LaporModal';
+import { useAuth } from '../context/AuthContext';
 
-export default function DashboardNavbar({ user = { name: 'Farid Annas', email: 'farid@mail.com' } }) {
+export default function DashboardNavbar({ user: propUser }) {
+  const { user: authUser, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Prioritaskan user dari AuthContext, kemudian prop, kemudian fallback
+  const currentUser = authUser || propUser || { name: 'Tamu', email: 'tamu@siapsiaga.id' };
+
   // State untuk kontrol Popup & Dropdown
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -25,6 +33,36 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
     setIsNotifOpen(false);
   };
 
+  const handleLogout = async () => {
+    setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
+
+    const result = await Swal.fire({
+      title: 'Konfirmasi Keluar',
+      text: 'Apakah Anda yakin ingin keluar dari akun Anda?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#b91c1c',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Ya, Keluar',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      logout();
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil Keluar',
+        text: 'Anda telah keluar dari sesi.',
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      navigate('/login', { replace: true });
+    }
+  };
+
   const linkClass = ({ isActive }) =>
     `text-sm font-medium transition ${
       isActive 
@@ -36,6 +74,8 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
     `block py-2 text-sm font-medium ${
       isActive ? 'text-red-700 font-bold' : 'text-gray-600'
     }`;
+
+  const userInitial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
 
   return (
     <>
@@ -51,7 +91,9 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <span className="text-lg font-bold text-red-700">Siap Siaga</span>
+            <NavLink to="/dashboard" className="text-lg font-bold text-red-700">
+              Siap Siaga
+            </NavLink>
           </div>
 
           {/* Navigasi Desktop */}
@@ -68,16 +110,17 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             <button 
               className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50 transition"
               onClick={() => setIsLaporModalOpen(true)}
+              title="Laporkan Kejadian Bencana"
             >
               <Megaphone size={18} />
             </button>
-
 
             {/* Notification Bell Dropdown */}
             <div className="relative">
               <button 
                 onClick={toggleNotif}
                 className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition relative"
+                title="Notifikasi"
               >
                 <Bell size={18} />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
@@ -91,14 +134,18 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             <div className="relative">
               <button 
                 onClick={toggleProfile}
-                className="flex items-center gap-2 pl-2 border-l border-gray-200 hover:opacity-80 transition text-left"
+                className="flex items-center gap-2 pl-2 border-l border-gray-200 hover:opacity-80 transition text-left cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-yellow-300 flex items-center justify-center text-sm shadow-sm">
-                  🙂
+                <div className="w-8 h-8 rounded-full bg-red-100 text-primary-700 flex items-center justify-center text-xs font-bold shadow-sm">
+                  {currentUser.avatar_url ? (
+                    <img src={currentUser.avatar_url} alt={currentUser.name} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    userInitial
+                  )}
                 </div>
-                <div className="hidden sm:block">
-                  <p className="text-xs font-semibold text-gray-800 leading-tight">{user.name}</p>
-                  <p className="text-[11px] text-gray-400 leading-tight">{user.email}</p>
+                <div className="hidden sm:block max-w-[120px] truncate">
+                  <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{currentUser.name}</p>
+                  <p className="text-[11px] text-gray-400 leading-tight truncate">{currentUser.email}</p>
                 </div>
                 <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
               </button>
@@ -106,11 +153,8 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
               {/* Dropdown Profile User */}
               <ProfileDropdown 
                 isOpen={isProfileOpen} 
-                user={user}
-                onLogout={() => {
-                  setIsProfileOpen(false);
-                  alert('Logout Berhasil');
-                }} 
+                user={currentUser}
+                onLogout={handleLogout} 
               />
             </div>
 
@@ -149,6 +193,12 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
               className="w-full text-left py-2 text-sm font-semibold text-red-700 flex items-center gap-2"
             >
               <Plus size={16} /> Buka Chatbot
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="w-full text-left py-2 text-sm font-medium text-red-600 border-t border-gray-100 pt-2"
+            >
+              Keluar (Logout)
             </button>
           </div>
         )}

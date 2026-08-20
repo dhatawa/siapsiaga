@@ -4,6 +4,7 @@ import { AlertTriangle, Thermometer, Droplets, CloudRain, Cloud, CloudLightning 
 import DashboardNavbar from '../components/DashboardNavbar';
 import AlertCard from '../components/AlertCard';
 import ChatbotPopup, { ChatbotToggleButton } from '../components/ChatbotPopup';
+import { useAuth } from '../context/AuthContext';
 
 const alerts = [
   {
@@ -32,6 +33,9 @@ const forecast = [
 
 export default function DashboardUser() {
   const [chatOpen, setChatOpen] = useState(false);
+  const { user } = useAuth();
+
+  const userName = user?.name ? user.name.split(' ')[0] : 'Pengguna';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -39,7 +43,7 @@ export default function DashboardUser() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          Selamat Pagi, Farid <span>👋</span>
+          Selamat Pagi, {userName} <span>👋</span>
         </h1>
         <p className="text-sm text-gray-500 mt-1">Berikut kondisi terkini disekitar anda</p>
 

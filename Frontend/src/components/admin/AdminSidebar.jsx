@@ -1,4 +1,4 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutGrid,
   Users,
@@ -11,6 +11,8 @@ import {
   Megaphone,
   LogOut,
 } from 'lucide-react';
+import Swal from 'sweetalert2';
+import { useAuth } from '../../context/AuthContext';
 
 const menu = [
   { to: '/admin/dashboard', label: 'Dasboard', icon: LayoutGrid },
@@ -24,6 +26,36 @@ const menu = [
 ];
 
 export default function AdminSidebar({ mobileOpen, onClose }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: 'Konfirmasi Keluar',
+      text: 'Apakah Anda yakin ingin keluar dari Panel Admin?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#b91c1c',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Ya, Keluar',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      logout();
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil Keluar',
+        text: 'Anda telah keluar dari sesi Admin.',
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      navigate('/login', { replace: true });
+    }
+  };
+
   return (
     <>
       {mobileOpen && (
@@ -70,12 +102,13 @@ export default function AdminSidebar({ mobileOpen, onClose }) {
           >
             <Megaphone size={14} /> Kirim Peringatan Darurat
           </Link>
-          <Link
-            to="/login"
-            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 hover:text-gray-800"
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-500 hover:text-gray-800 transition cursor-pointer text-left"
           >
             <LogOut size={16} /> Keluar
-          </Link>
+          </button>
         </div>
       </aside>
     </>

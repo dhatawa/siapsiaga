@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, Bell, Settings, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import NotificationDropdown from '../NotificationDropdown';
+import { useAuth } from '../../context/AuthContext';
 
 const placeholders = {
   '/admin/dashboard': 'Cari...',
@@ -16,12 +17,15 @@ const placeholders = {
 
 export default function AdminTopbar({ onMenuClick }) {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const placeholder = placeholders[pathname] || 'Cari...';
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const toggleNotification = () => {
     setIsNotificationOpen((prev) => !prev);
   };
+
+  const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'A';
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
@@ -50,8 +54,8 @@ export default function AdminTopbar({ onMenuClick }) {
           <button className="text-gray-400 hover:text-gray-600">
             <Settings size={18} />
           </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-800 text-white flex items-center justify-center text-xs font-semibold">
-            A
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-800 text-white flex items-center justify-center text-xs font-semibold" title={user?.name || 'Admin'}>
+            {initial}
           </div>
         </div>
       </div>

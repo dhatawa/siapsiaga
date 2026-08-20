@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const newsRoutes = require('./routes/newsRoutes');
 const bmkgRoutes = require('./routes/bmkgRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.get('/api/test', (req, res) => {
 // ROUTES
 // ===============================
 
+app.use('/api/auth', authRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/bmkg', bmkgRoutes);
 
@@ -80,6 +82,7 @@ app.listen(PORT, () => {
   console.log('================================');
   console.log(`  Server : http://localhost:${PORT}`);
   console.log(`  Test   : http://localhost:${PORT}/api/test`);
+  console.log(`  Auth   : http://localhost:${PORT}/api/auth`);
   console.log(`  News   : http://localhost:${PORT}/api/news`);
   console.log(`  BMKG   : http://localhost:${PORT}/api/bmkg/earthquake`);
   console.log('================================');
