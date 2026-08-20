@@ -33,7 +33,6 @@ class UserModel {
    * @returns {Promise<object>}
    */
   static async createUser({ name, email, password_hash, role = 'user', status = 'aktif', avatar_url = null }) {
-    // Pastikan role selalu 'user' jika registrasi publik
     const userRole = role === 'admin' ? 'admin' : 'user';
     const userStatus = status || 'aktif';
 
@@ -53,24 +52,42 @@ class UserModel {
   }
 
   /**
-   * Ambil semua user (untuk modul admin)
+   * Ambil daftar user biasa (role 'user' saja, tanpa admin) dengan filter pencarian dan status
+   * @param {object} options { search, status }
    * @returns {Promise<Array>}
    */
-  static async getAllUsers() {
-    const [rows] = await db.query(
-      'SELECT id, name, email, role, status, avatar_url, created_at, updated_at FROM users ORDER BY created_at DESC'
-    );
+  static async getUsers({ search = '', status = '' } = {}) {
+    let sql = `
+      SELECT id, name, email, role, status, avatar_url, created_at, updated_at 
+      FROM users 
+      WHERE role = 'user'
+    `;
+    const params = [];
+
+    if (search && search.trim() !== '') {
+      sql += ` AND (name LIKE ? OR email LIKE ?)`;
+      params.push(`%${search.trim()}%`, `%${search.trim()}%`);
+    }
+
+    if (status && status !== 'Semua Status' && status !== 'all') {
+      sql += ` AND status = ?`;
+      params.push(status.toLowerCase());
+    }
+
+    sql += ` ORDER BY created_at DESC`;
+
+    const [rows] = await db.query(sql, params);
     return rows;
   }
 
   /**
-   * Update status atau profil user
+   * Update data profil, status, atau avatar user
    * @param {number} id 
    * @param {object} fields 
    * @returns {Promise<boolean>}
    */
   static async updateUser(id, fields) {
-    const validFields = ['name', 'avatar_url', 'status', 'role'];
+    const validFields = ['name', 'email', 'avatar_url', 'status', 'role'];
     const updates = [];
     const values = [];
 
@@ -89,6 +106,19 @@ class UserModel {
       values
     );
 
+    return result.affectedRows > 0;
+  }
+
+  /**
+   * Hapus user berdasarkan ID (Hanya boleh menghapus role user biasa)
+   * @param {number} id 
+   * @returns {Promise<boolean>}
+   */
+  static async deleteUser(id) {
+    const [result] = await db.query(
+      'DELETE FROM users WHERE id = ? AND role = "user"',
+      [id]
+    );
     return result.affectedRows > 0;
   }
 }
