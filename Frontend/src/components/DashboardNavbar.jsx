@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Megaphone, ChevronDown, Bell, Menu, X, Plus } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -7,6 +7,7 @@ import ProfileDropdown from './ProfileDropdown';
 import ChatbotPopup, { ChatbotToggleButton } from './ChatbotPopup';
 import LaporModal from './LaporModal';
 import { useAuth } from '../context/AuthContext';
+import { notificationService } from '../services/notificationService';
 
 export default function DashboardNavbar({ user: propUser }) {
   const { user: authUser, logout } = useAuth();
@@ -21,11 +22,29 @@ export default function DashboardNavbar({ user: propUser }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLaporModalOpen, setIsLaporModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const checkUnread = async () => {
+    try {
+      const notifs = await notificationService.getNotifications(10);
+      const count = notificationService.getUnreadCount(notifs);
+      setUnreadCount(count);
+    } catch (err) {
+      console.warn('Check unread notif err:', err);
+    }
+  };
+
+  useEffect(() => {
+    checkUnread();
+  }, []);
 
   // Toggle helpers agar hanya 1 dropdown yang terbuka dalam 1 waktu
   const toggleNotif = () => {
     setIsNotifOpen(!isNotifOpen);
     setIsProfileOpen(false);
+    if (!isNotifOpen) {
+      setUnreadCount(0);
+    }
   };
 
   const toggleProfile = () => {
@@ -108,7 +127,7 @@ export default function DashboardNavbar({ user: propUser }) {
             
             {/* Megaphone / Sound Icon */}
             <button 
-              className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50 transition"
+              className="p-2 text-gray-400 hover:text-red-600 rounded-xl hover:bg-gray-50 transition cursor-pointer"
               onClick={() => setIsLaporModalOpen(true)}
               title="Laporkan Kejadian Bencana"
             >
@@ -119,15 +138,25 @@ export default function DashboardNavbar({ user: propUser }) {
             <div className="relative">
               <button 
                 onClick={toggleNotif}
-                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition relative"
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-50 transition relative cursor-pointer"
                 title="Notifikasi"
               >
                 <Bell size={18} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
+                {unreadCount > 0 ? (
+                  <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-brand-red text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-xs">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                ) : (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"></span>
+                )}
               </button>
 
               {/* Dropdown Notifikasi */}
-              <NotificationDropdown isOpen={isNotifOpen} />
+              <NotificationDropdown
+                isOpen={isNotifOpen}
+                onClose={() => setIsNotifOpen(false)}
+                onNotificationRead={() => setUnreadCount(0)}
+              />
             </div>
 
             {/* User Profile Area (Klik untuk Buka Dropdown Account) */}

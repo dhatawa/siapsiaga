@@ -96,12 +96,6 @@ export default function AdminSidebar({ mobileOpen, onClose }) {
         </nav>
 
         <div className="p-3 border-t border-gray-100 space-y-2">
-          <Link
-            to="/admin/peringatan"
-            className="flex items-center justify-center gap-2 bg-brand-red hover:bg-red-700 text-white text-xs font-semibold rounded-lg py-2.5"
-          >
-            <Megaphone size={14} /> Kirim Peringatan Darurat
-          </Link>
           <button
             type="button"
             onClick={handleLogout}

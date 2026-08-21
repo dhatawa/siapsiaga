@@ -1,5 +1,7 @@
-import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight, MapPin, Radio, Compass } from 'lucide-react';
 import { adminStations } from '../../data/adminData';
+import DisasterMap from '../../components/DisasterMap';
 
 const statusColors = {
   green: 'bg-emerald-50 text-emerald-600',
@@ -16,82 +18,113 @@ const dotColors = {
 };
 
 export default function AdminLokasi() {
+  const [selectedStation, setSelectedStation] = useState(null);
+
   return (
-    <div>
-      <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
+    <div className="space-y-6 pb-8">
+      {/* Header */}
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pemantauan Lokasi</h1>
-          <p className="text-sm text-gray-500 mt-1">Kelola dan pantau stasiun sensor lingkungan aktif.</p>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Pemantauan Lokasi & Peta Sensor</h1>
+          <p className="text-sm text-gray-500 mt-1">Kelola dan pantau stasiun sensor lingkungan aktif serta sebaran insiden.</p>
         </div>
-        <button className="flex items-center gap-1.5 text-xs font-medium bg-brand-red hover:bg-red-700 text-white px-3.5 py-2 rounded-lg">
-          <Plus size={14} /> Tambah Lokasi Baru
+        <button className="flex items-center gap-1.5 text-xs font-semibold bg-brand-red hover:bg-red-700 text-white px-4 py-2.5 rounded-xl shadow-sm transition">
+          <Plus size={15} /> Tambah Lokasi Stasiun
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 mb-5">
-        <div className="h-56 rounded-lg bg-gray-100 relative flex items-center justify-center text-center">
-          <div className="bg-white/95 rounded-lg px-6 py-4 shadow-sm">
-            <MapPin size={20} className="text-brand-red mx-auto mb-1" />
-            <p className="text-sm font-semibold text-gray-800">Tampilan Peta Interaktif</p>
-            <p className="text-xs text-gray-400 mt-1">Pilih stasiun di bawah untuk memfokuskan peta.</p>
+      {/* Interactive Leaflet Map */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Radio size={16} className="text-brand-red" />
+            <span className="text-xs font-bold text-gray-800">
+              Peta Pemantauan Geografis {selectedStation ? `• Fokus: ${selectedStation.name}` : ''}
+            </span>
           </div>
+          <span className="text-[11px] text-gray-400">Klik baris tabel di bawah untuk memusatkan peta ke stasiun</span>
         </div>
+
+        <DisasterMap
+          mode="admin"
+          height="380px"
+          focusLocation={selectedStation ? { lat: parseFloat(selectedStation.lat), lng: parseFloat(selectedStation.lng) } : null}
+        />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+      {/* Stations Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="text-left text-[11px] text-gray-400 uppercase tracking-wide border-b border-gray-100">
-                <th className="px-4 py-3 font-medium">Nama Stasiun</th>
-                <th className="px-4 py-3 font-medium">Wilayah</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Sinkronisasi Terakhir</th>
-                <th className="px-4 py-3 font-medium">Aksi</th>
+              <tr className="bg-gray-50/70 border-b border-gray-100 text-gray-400 uppercase font-semibold text-[10px] tracking-wider">
+                <th className="px-5 py-3.5">Nama Stasiun</th>
+                <th className="px-4 py-3.5">Wilayah</th>
+                <th className="px-4 py-3.5">Status</th>
+                <th className="px-4 py-3.5">Sinkronisasi Terakhir</th>
+                <th className="px-5 py-3.5 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {adminStations.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50/60">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${dotColors[s.statusColor]}`} />
-                      <div>
-                        <p className="font-medium text-gray-800">{s.name}</p>
-                        <p className="text-[11px] text-gray-400">Lat: {s.lat}, Lng: {s.lng}</p>
+              {adminStations.map((s) => {
+                const isSelected = selectedStation?.id === s.id;
+                return (
+                  <tr
+                    key={s.id}
+                    onClick={() => setSelectedStation(s)}
+                    className={`hover:bg-gray-50/80 transition-colors cursor-pointer ${
+                      isSelected ? 'bg-red-50/30' : ''
+                    }`}
+                  >
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-2.5 h-2.5 rounded-full ${dotColors[s.statusColor]} shrink-0`} />
+                        <div>
+                          <p className="font-bold text-gray-900">{s.name}</p>
+                          <p className="text-[11px] text-gray-400 font-mono">
+                            Lat: {s.lat}, Lng: {s.lng}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{s.area}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${statusColors[s.statusColor]}`}>
-                      {s.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{s.lastSync}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <button className="text-primary-700 hover:text-primary-800">
-                        <Pencil size={14} />
-                      </button>
-                      <button className="text-brand-red hover:text-red-700">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-3.5 text-gray-600 font-medium">{s.area}</td>
+                    <td className="px-4 py-3.5">
+                      <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border ${statusColors[s.statusColor]}`}>
+                        {s.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-gray-500">{s.lastSync}</td>
+                    <td className="px-5 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setSelectedStation(s)}
+                          className="p-1.5 rounded-lg text-primary-700 hover:bg-red-50 transition"
+                          title="Fokuskan Peta"
+                        >
+                          <Compass size={15} />
+                        </button>
+                        <button className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition" title="Edit">
+                          <Pencil size={15} />
+                        </button>
+                        <button className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition" title="Hapus">
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 text-xs text-gray-400">
-          <span>Menampilkan {adminStations.length} dari 5 lokasi</span>
+        <div className="flex items-center justify-between px-5 py-3.5 border-t border-gray-100 text-xs text-gray-400 bg-gray-50/50">
+          <span>Menampilkan {adminStations.length} lokasi stasiun pemantau</span>
           <div className="flex items-center gap-1">
-            <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50">
+            <button className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 text-gray-500">
               <ChevronLeft size={13} />
             </button>
-            <button className="w-7 h-7 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50">
+            <button className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 text-gray-500">
               <ChevronRight size={13} />
             </button>
           </div>

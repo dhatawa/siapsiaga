@@ -7,6 +7,10 @@ const newsRoutes = require('./routes/newsRoutes');
 const bmkgRoutes = require('./routes/bmkgRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const contentRoutes = require('./routes/contentRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -50,6 +54,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/bmkg', bmkgRoutes);
+app.use('/api/contents', contentRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ===============================
 // 404

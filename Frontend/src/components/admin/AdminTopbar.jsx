@@ -26,7 +26,7 @@ export default function AdminTopbar({ onMenuClick }) {
           <div className="relative">
             <button className="relative text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-50 transition" onClick={toggleNotification} title="Notifikasi">
               <Bell size={18} />
-              <span className="absolute 1 top-1 right-1 w-2 h-2 rounded-full bg-brand-red" />
+              <span className="absolute 1 top-1 right-1 w-2 h-2 rounded-full" />
             </button>
             <NotificationDropdown isOpen={isNotificationOpen} />
           </div>
