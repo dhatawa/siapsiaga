@@ -30,9 +30,6 @@ export default function AdminTopbar({ onMenuClick }) {
             </button>
             <NotificationDropdown isOpen={isNotificationOpen} />
           </div>
-          <button className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-50 transition" title="Pengaturan">
-            <Settings size={18} />
-          </button>
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-800 text-white flex items-center justify-center text-xs font-semibold shadow-sm" title={user?.name || 'Admin'}>
             {initial}
           </div>

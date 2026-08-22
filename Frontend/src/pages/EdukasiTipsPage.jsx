@@ -202,7 +202,7 @@ export default function EdukasiTipsPage() {
           </div>
 
           {/* Checklist Tas Siaga Bencana */}
-          <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-6 mt-8 shadow-sm">
+          {/* <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-6 mt-8 shadow-sm">
             <div className="flex items-start justify-between flex-wrap gap-3">
               <div>
                 <p className="font-bold text-gray-900 text-base flex items-center gap-2">
@@ -235,7 +235,7 @@ export default function EdukasiTipsPage() {
                 </label>
               ))}
             </div>
-          </div>
+          </div> */}
         </main>
 
         <DashboardFooter />

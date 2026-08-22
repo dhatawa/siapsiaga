@@ -12,4 +12,7 @@ router.post('/login', authController.login);
 // Endpoint Mendapatkan Profil User Aktif (Protected)
 router.get('/me', verifyToken, authController.getMe);
 
+// Endpoint Ubah Password User Aktif (Protected)
+router.put('/change-password', verifyToken, authController.changePassword);
+
 module.exports = router;

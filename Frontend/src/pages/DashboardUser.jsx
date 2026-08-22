@@ -75,7 +75,7 @@ export default function DashboardUser() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          Selamat Pagi, {userName} <span>👋</span>
+          Selamat Datang Kembali, {userName} <span>👋</span>
         </h1>
         <p className="text-sm text-gray-500 mt-1">
           Berikut kondisi cuaca, pemantauan sensor, dan laporan insiden terkini di sekitar Anda.

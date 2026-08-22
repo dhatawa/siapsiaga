@@ -22,7 +22,7 @@ const menu = [
   { to: '/admin/iot', label: 'Kesehatan IoT', icon: Radio },
   { to: '/admin/konten', label: 'Konten', icon: FileText },
   { to: '/admin/peringatan', label: 'Peringatan', icon: BellRing },
-  { to: '/admin/log', label: 'Log Sistem', icon: History },
+  // { to: '/admin/log', label: 'Log Sistem', icon: History },
 ];
 
 export default function AdminSidebar({ mobileOpen, onClose }) {

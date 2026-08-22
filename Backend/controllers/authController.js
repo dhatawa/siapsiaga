@@ -220,8 +220,109 @@ async function getMe(req, res) {
   }
 }
 
+/**
+ * Controller untuk Mengubah Kata Sandi / Password Pengguna
+ */
+async function changePassword(req, res) {
+  try {
+    const userId = req.user?.id;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // 1. Validasi keberadaan input
+    if (!currentPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password saat ini wajib diisi.'
+      });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password baru wajib diisi.'
+      });
+    }
+
+    if (!confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Konfirmasi password wajib diisi.'
+      });
+    }
+
+    // 2. Validasi panjang password baru
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password baru minimal terdiri dari 6 karakter.'
+      });
+    }
+
+    // 3. Validasi kesesuaian konfirmasi password
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Konfirmasi password tidak cocok dengan password baru.'
+      });
+    }
+
+    // 4. Ambil data user lengkap beserta password_hash
+    const user = await UserModel.findByIdWithPassword(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pengguna tidak ditemukan.'
+      });
+    }
+
+    // 5. Verifikasi password saat ini
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password saat ini yang Anda masukkan salah.'
+      });
+    }
+
+    // 6. Cek apakah password baru sama dengan password lama
+    const isSamePassword = await bcrypt.compare(newPassword, user.password_hash);
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password baru tidak boleh sama dengan password saat ini.'
+      });
+    }
+
+    // 7. Hash password baru
+    const saltRounds = 10;
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // 8. Simpan ke database
+    const updated = await UserModel.updatePassword(userId, newPasswordHash);
+    if (!updated) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gagal memperbarui password pada database.'
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Password Anda berhasil diperbarui!'
+    });
+
+  } catch (error) {
+    console.error('CHANGE PASSWORD ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan pada server saat mengubah password.'
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
+  changePassword
 };

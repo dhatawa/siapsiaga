@@ -28,6 +28,33 @@ class UserModel {
   }
 
   /**
+   * Cari user berdasarkan ID termasuk password_hash untuk verifikasi keamanan
+   * @param {number} id 
+   * @returns {Promise<object|null>}
+   */
+  static async findByIdWithPassword(id) {
+    const [rows] = await db.query(
+      'SELECT id, name, email, password_hash, role, status, avatar_url, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
+      [id]
+    );
+    return rows.length > 0 ? rows[0] : null;
+  }
+
+  /**
+   * Perbarui password_hash pengguna
+   * @param {number} id 
+   * @param {string} password_hash 
+   * @returns {Promise<boolean>}
+   */
+  static async updatePassword(id, password_hash) {
+    const [result] = await db.query(
+      'UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?',
+      [password_hash, id]
+    );
+    return result.affectedRows > 0;
+  }
+
+  /**
    * Buat user baru (Role default adalah 'user' dan status 'aktif')
    * @param {object} userData 
    * @returns {Promise<object>}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Megaphone, ChevronDown, Bell, Menu, X, Plus } from 'lucide-react';
+import { Megaphone, ChevronDown, Bell, Menu, X, Plus, KeyRound } from 'lucide-react';
 import Swal from 'sweetalert2';
 import NotificationDropdown from './NotificationDropdown';
 import ProfileDropdown from './ProfileDropdown';
+import ChangePasswordModal from './ChangePasswordModal';
 import ChatbotPopup, { ChatbotToggleButton } from './ChatbotPopup';
 import LaporModal from './LaporModal';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +20,7 @@ export default function DashboardNavbar({ user: propUser }) {
   // State untuk kontrol Popup & Dropdown
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLaporModalOpen, setIsLaporModalOpen] = useState(false);
@@ -183,7 +185,11 @@ export default function DashboardNavbar({ user: propUser }) {
               <ProfileDropdown 
                 isOpen={isProfileOpen} 
                 user={currentUser}
-                onLogout={handleLogout} 
+                onLogout={handleLogout}
+                onChangePassword={() => {
+                  setIsProfileOpen(false);
+                  setIsChangePasswordOpen(true);
+                }}
               />
             </div>
 
@@ -224,6 +230,15 @@ export default function DashboardNavbar({ user: propUser }) {
               <Plus size={16} /> Buka Chatbot
             </button>
             <button 
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsChangePasswordOpen(true);
+              }}
+              className="w-full text-left py-2 text-sm font-medium text-gray-700 hover:text-red-700 flex items-center gap-2 border-t border-gray-100 pt-2"
+            >
+              <KeyRound size={16} /> Ubah Password
+            </button>
+            <button 
               onClick={handleLogout}
               className="w-full text-left py-2 text-sm font-medium text-red-600 border-t border-gray-100 pt-2"
             >
@@ -232,6 +247,12 @@ export default function DashboardNavbar({ user: propUser }) {
           </div>
         )}
       </header>
+
+      {/* Modal Ubah Password */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
 
       <LaporModal
         isOpen={isLaporModalOpen}

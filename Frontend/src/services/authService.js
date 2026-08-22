@@ -77,6 +77,34 @@ export const authService = {
   },
 
   /**
+   * Mengubah Kata Sandi Pengguna
+   * @param {object} param0 { currentPassword, newPassword, confirmPassword }
+   */
+  async changePassword({ currentPassword, newPassword, confirmPassword }) {
+    const token = localStorage.getItem('siapsiaga_token');
+    const response = await fetch(`${API_BASE_URL}/change-password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token || ''}`,
+      },
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Gagal mengubah kata sandi.');
+    }
+
+    return data;
+  },
+
+  /**
    * Simpan Token dan Data User ke LocalStorage
    */
   saveAuth(authData) {
