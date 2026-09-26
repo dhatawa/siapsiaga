@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, BellRing, BookOpenCheck, Database, BrainCircuit, Radio, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, BellRing, BookOpenCheck, Database, BrainCircuit, Radio, ShieldCheck, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
 
 const features = [
@@ -31,93 +32,164 @@ const stats = [
   { value: '98.5%', label: 'Akurasi Prediksi' },
   { value: '15', label: 'Titik Monitor Aktif' },
   { value: '50', label: 'Peringatan Aktif' },
-  { value: '24/7', label: 'Pemantauan Sistem' },
 ];
 
 export default function LandingPage() {
+  useEffect(() => {
+    const sections = document.querySelectorAll('.fade-in-element');
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.18 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  const [stepIndex, setStepIndex] = useState(0);
+  const visibleSteps = steps.slice(stepIndex, stepIndex + 2);
+  const hasPrev = stepIndex > 0;
+  const hasNext = stepIndex + 2 < steps.length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <PublicNavbar />
 
       {/* Hero */}
-      <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-            Mitigasi Cepat, <br /> Keselamatan Terjaga
-          </h1>
-          <p className="mt-5 text-gray-500 leading-relaxed max-w-md">
-            Sistem informasi mitigasi bencana real-time terpercaya. Dapatkan informasi terkini,
-            peringatan dini, dan panduan keselamatan langsung di tangan Anda.
-          </p>
+      <section id="dashboard" className="fade-in-element max-w-3xl mx-auto px-6 py-20 text-center">
+        <div className="inline-flex flex-col items-center gap-3 rounded-full border border-red-200 bg-white/90 px-5 py-3 text-sm font-medium text-red-700 shadow-sm shadow-red-100 sm:flex-row sm:gap-4">
+          <span className="rounded-full bg-red-600 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white">Terbaru</span>
+          <span>Platform mitigasi bencana siap pakai untuk masyarakat dan petugas lapangan berbasis AI + IOT.</span>
+        </div>
+
+        <h1 className="mt-8 text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+          Mitigasi cepat, keputusan lebih siap.
+        </h1>
+        <p className="mx-auto mt-6 text-base sm:text-lg md:text-lg text-gray-600 max-w-2xl leading-relaxed">
+          Dapatkan peringatan dini, panduan mitigasi, dan informasi situasi real-time dalam satu platform yang mudah digunakan.
+        </p>
+
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             to="/register"
-            className="inline-block mt-7 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-6 py-3 rounded-lg transition-colors"
+            className="button-scale inline-flex items-center justify-center rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-colors duration-200 hover:bg-red-700"
           >
             Mulai Sekarang
           </Link>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
-          <div className="rounded-xl overflow-hidden h-72 bg-gradient-to-br from-red-50 to-rose-100 flex items-center justify-center text-red-300 text-sm font-medium">
-            Peta Interaktif
-          </div>
+          <Link
+            to="/fitur"
+            className="button-scale inline-flex items-center justify-center rounded-full border border-red-600 bg-white px-6 py-3 text-sm font-semibold text-red-600 transition-colors duration-200 hover:border-red-700 hover:text-red-700"
+          >
+            Lihat Fitur
+          </Link>
         </div>
       </section>
 
       {/* Fitur Utama */}
-      <section id="fitur" className="max-w-7xl mx-auto px-6 py-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Fitur Utama</h2>
-        <p className="text-gray-500 mt-2 max-w-lg mx-auto text-sm">
-          Semua yang Anda butuhkan untuk tetap siaga dan aman dalam satu platform terintegrasi.
+      <section id="fitur" className="fade-in-element max-w-6xl mx-auto px-6 py-16 text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Alur Pelaporan Presisi</h2>
+        <div className="mx-auto mt-4 h-1.5 w-24 rounded-full bg-red-600"></div>
+        <p className="mx-auto mt-4 text-gray-500 max-w-2xl text-sm sm:text-base leading-relaxed">
+          Lakukan pelaporan secara cepat dan tepat dengan alur yang jelas, validasi otomatis, serta update real-time.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-6 mt-10 text-left">
-          {features.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-              <div className="w-10 h-10 rounded-lg bg-red-600 text-white flex items-center justify-center mb-4">
-                <Icon size={18} />
+        <div className="relative mt-14">
+          <div className="absolute inset-x-0 top-1/2 h-px bg-gray-200"></div>
+          <div className="grid gap-8 md:grid-cols-3 relative">
+            {features.map(({ icon: Icon, title, desc }) => (
+              <div
+                key={title}
+                className="group relative z-10 flex flex-col items-center gap-5 rounded-3xl border border-gray-100 bg-white px-6 py-8 shadow-sm transition-transform duration-300 hover:-translate-y-1"
+              >
+                <div className="button-scale flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-white transition-transform duration-200 group-hover:scale-110">
+                  <Icon size={20} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
               </div>
-              <h3 className="font-semibold text-gray-900">{title}</h3>
-              <p className="text-sm text-gray-500 mt-2 leading-relaxed">{desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Cara Kerja */}
-      <section id="cara-kerja" className="max-w-7xl mx-auto px-6 py-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Bagaimana Siap Siaga Bekerja</h2>
-        <p className="text-gray-500 mt-2 max-w-lg mx-auto text-sm">
-          Sistem terintegrasi yang bekerja secara otomatis untuk melindungi masyarakat.
-        </p>
+      <section id="cara-kerja" className="fade-in-element max-w-6xl mx-auto px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-4 lg:flex-row lg:justify-between lg:items-end">
+          <div className="text-left w-full lg:w-2/3 mx-auto lg:mx-0">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Alur Pelaporan</h2>
+            <p className="mt-3 text-gray-500 max-w-2xl text-sm sm:text-base leading-relaxed">
+              Ikuti langkah mudah untuk melaporkan kejadian secara presisi dan dapatkan tanggapan cepat.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setStepIndex((value) => Math.max(0, value - 2))}
+              disabled={!hasPrev}
+              className="button-scale inline-flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setStepIndex((value) => Math.min(steps.length - 2, value + 2))}
+              disabled={!hasNext}
+              className="button-scale inline-flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mt-10">
-          {steps.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center mb-4">
-                <Icon size={20} />
+        <div className="mt-10 grid gap-6 sm:grid-cols-2">
+          {visibleSteps.map(({ icon: Icon, title, desc }) => (
+            <div
+              key={title}
+              className="group rounded-[2rem] border border-gray-100 bg-white p-6 text-left shadow-lg shadow-gray-100 transition-transform duration-300 hover:-translate-y-1"
+            >
+              <div className="button-scale inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-red-600 text-white transition-transform duration-200 group-hover:scale-110">
+                <Icon size={22} />
               </div>
-              <h3 className="font-semibold text-gray-900 text-sm">{title}</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">{desc}</p>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">{title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-gray-500">{desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Status */}
-      <section id="status" className="max-w-7xl mx-auto px-6 pb-16">
-        <h2 className="text-2xl font-bold text-gray-900">Status</h2>
-        <div className="rounded-2xl border  py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <section id="status" className="fade-in-element max-w-6xl mx-auto px-6 py-16">
+        <div className="text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Dashboard Transparansi</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-gray-500 leading-relaxed">
+            Pantau kinerja perbaikan fasilitas secara real-time. Kami berkomitmen pada keterbukaan data setiap langkah.
+          </p>
+        </div>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {stats.map(({ value, label }) => (
-            <div key={label}>
-              <p className="text-3xl font-extrabold text-red-600">{value}</p>
-              <p className="text-xs text-red-500 mt-1">{label}</p>
+            <div key={label} className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-lg shadow-gray-100 transition-transform duration-300 hover:-translate-y-1">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-red-50 text-red-600 shadow-sm">
+                <CheckCircle size={20} />
+              </div>
+              <p className="mt-5 text-4xl font-extrabold text-red-600">{value}</p>
+              <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</p>
+              <div className="mt-5 h-1.5 w-full rounded-full bg-red-100">
+                <div className="h-1.5 w-2/3 rounded-full bg-red-600"></div>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-100">
+      <footer className="fade-in-element bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-8 text-sm">
           <div>
             <p className="font-bold text-brand-red text-lg">Siap Siaga</p>

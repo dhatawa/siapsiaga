@@ -2,9 +2,9 @@
 // against the Node.js backend once it's ready.
 
 export const dashboardStats = [
-  { label: 'Total Pengguna', value: '24,592', badge: '+12%', badgeType: 'up', color: 'bg-brand-red' },
-  { label: 'Sensor IoT Aktif', value: '1,024', suffix: '/1,050', suffixInline: true, dot: true, color: 'bg-primary-700' },
-  { label: 'Laporan Pengguna (Tertunda)', value: '87', suffix: '420 tervalidasi', color: 'bg-gray-700' },
+  { label: 'Total Pengguna', value: '3', badge: '100%', badgeType: 'up', color: 'bg-brand-red' },
+  { label: 'Sensor IoT Aktif', value: '2', suffix: '/5', suffixInline: true, dot: true, color: 'bg-primary-700' },
+  { label: 'Laporan Pengguna (Tertunda)', value: '8', suffix: '40 tervalidasi', color: 'bg-gray-700' },
   { label: 'Peringatan Aktif', value: '3', color: 'bg-brand-red', highlight: true },
 ];
 
@@ -42,48 +42,28 @@ export const recentActivity = [
 export const adminUsers = [
   {
     id: 1,
-    name: 'Ahmad Budi',
-    email: 'ahmad@example.com',
-    initials: 'AB',
+    name: 'Farid Annas',
+    email: 'farid.annas@gmail.com',
+    initials: 'FA',
     avatarColor: 'bg-blue-500',
-    address: 'Jl. Merdeka No. 45, Jakarta',
-    gender: 'Laki-laki',
-    age: 34,
     status: 'Aktif',
   },
   {
     id: 2,
-    name: 'Siti Wijaya',
-    email: 'siti.w@example.com',
-    initials: 'SW',
+    name: 'Reza Adi Wijaya',
+    email: 'reza@gmail.com',
+    initials: 'RA',
     avatarColor: 'bg-emerald-500',
-    address: 'Komp. Cempaka Blok B/12, Bandung',
-    gender: 'Perempuan',
-    age: 28,
-    status: 'Aktif',
-  },
-  {
-    id: 3,
-    name: 'Reza Saputra',
-    email: 'reza.s@example.com',
-    initials: 'RS',
-    avatarColor: 'bg-gray-400',
-    address: 'Jl. Sudirman 88, Surabaya',
-    gender: 'Laki-laki',
-    age: 41,
     status: 'Tidak Aktif',
   },
   {
-    id: 4,
-    name: 'Dian Kusuma',
-    email: 'dian.k@example.com',
-    initials: 'DK',
-    avatarColor: 'bg-red-500',
-    address: 'Desa Makmur Rt 02/01, Semarang',
-    gender: 'Perempuan',
-    age: 30,
+    id: 3,
+    name: 'Dyka Hatawa',
+    email: 'dyka.hatawa@gmail.com',
+    initials: 'DH',
+    avatarColor: 'bg-gray-400',
     status: 'Aktif',
-  },
+  }
 ];
 
 export const adminStations = [
@@ -98,16 +78,6 @@ export const adminStations = [
     lastSync: '2 menit lalu',
   },
   {
-    id: 2,
-    name: 'STA Kopo Sayati',
-    lat: '-6.9531',
-    lng: '107.5768',
-    area: 'Bandung Selatan',
-    status: 'Siaga III',
-    statusColor: 'yellow',
-    lastSync: '1 menit lalu',
-  },
-  {
     id: 3,
     name: 'STA Baleendah',
     lat: '-6.9925',
@@ -116,52 +86,6 @@ export const adminStations = [
     status: 'Offline',
     statusColor: 'gray',
     lastSync: 'Offline (2 jam)',
-  },
-  {
-    id: 4,
-    name: 'STA Dayeuhkolot',
-    lat: '-6.9856',
-    lng: '107.6251',
-    area: 'Bandung Selatan',
-    status: 'Siaga I (Kritis)',
-    statusColor: 'red',
-    lastSync: 'Baru saja',
-  },
-];
-
-export const incidentReports = [
-  {
-    id: 1,
-    name: 'Ahmad Budi',
-    contact: '+62 813-2456-7890',
-    initials: 'AB',
-    avatarColor: 'bg-blue-500',
-    type: 'Banjir',
-    location: 'Kemang, Jakarta Selatan',
-    datetime: '24 Okt 2023 - 14:30',
-    status: 'Menunggu',
-  },
-  {
-    id: 2,
-    name: 'Citra Sari',
-    contact: '+62 813-9876-5432',
-    initials: 'CS',
-    avatarColor: 'bg-pink-500',
-    type: 'Kebakaran',
-    location: 'Tambora, Jakarta Barat',
-    datetime: '24 Okt 2023 - 10:15',
-    status: 'Divalidasi',
-  },
-  {
-    id: 3,
-    name: 'Dian Wira',
-    contact: 'Pengguna Anonim',
-    initials: 'DW',
-    avatarColor: 'bg-gray-400',
-    type: 'Longsor',
-    location: 'Cisarua, Bogor',
-    datetime: '23 Okt 2023 - 18:45',
-    status: 'Ditolak',
   },
 ];
 

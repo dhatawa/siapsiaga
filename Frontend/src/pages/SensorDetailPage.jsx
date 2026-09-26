@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import PageWithChatbot from '../components/PageWithChatbot';
 import { sensors, sensorChartData, forecast24h, forecast7d } from '../data/cuacaData';
 
 const rangeOptions = ['Hari Ini', '7 Hari Terakhir', '30 Hari Terakhir'];
@@ -25,10 +26,11 @@ export default function SensorDetailPage() {
   if (!sensor) return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavbar />
+    <PageWithChatbot>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardNavbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <div className="text-xs text-gray-400 mb-4">
           <Link to="/dashboard" className="hover:underline">Home</Link>
           <span className="mx-1.5">›</span>
@@ -167,5 +169,6 @@ export default function SensorDetailPage() {
 
       <DashboardFooter />
     </div>
+  </PageWithChatbot>
   );
 }

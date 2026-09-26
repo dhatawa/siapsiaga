@@ -1,26 +1,87 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Megaphone, RefreshCw, ChevronDown, Bell, Menu, X, MessageSquareText, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Megaphone, ChevronDown, Bell, Menu, X, Plus, KeyRound } from 'lucide-react';
+import Swal from 'sweetalert2';
 import NotificationDropdown from './NotificationDropdown';
 import ProfileDropdown from './ProfileDropdown';
+import ChangePasswordModal from './ChangePasswordModal';
+import ChatbotPopup, { ChatbotToggleButton } from './ChatbotPopup';
 import LaporModal from './LaporModal';
+import { useAuth } from '../context/AuthContext';
+import { notificationService } from '../services/notificationService';
 
-export default function DashboardNavbar({ user = { name: 'Farid Annas', email: 'farid@mail.com' } }) {
+export default function DashboardNavbar({ user: propUser }) {
+  const { user: authUser, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Prioritaskan user dari AuthContext, kemudian prop, kemudian fallback
+  const currentUser = authUser || propUser || { name: 'Tamu', email: 'tamu@siapsiaga.id' };
+
   // State untuk kontrol Popup & Dropdown
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isLaporOpen, setIsLaporOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLaporModalOpen, setIsLaporModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const checkUnread = async () => {
+    try {
+      const notifs = await notificationService.getNotifications(10);
+      const count = notificationService.getUnreadCount(notifs);
+      setUnreadCount(count);
+    } catch (err) {
+      console.warn('Check unread notif err:', err);
+    }
+  };
+
+  useEffect(() => {
+    checkUnread();
+  }, []);
 
   // Toggle helpers agar hanya 1 dropdown yang terbuka dalam 1 waktu
   const toggleNotif = () => {
     setIsNotifOpen(!isNotifOpen);
     setIsProfileOpen(false);
+    if (!isNotifOpen) {
+      setUnreadCount(0);
+    }
   };
 
   const toggleProfile = () => {
     setIsProfileOpen(!isProfileOpen);
     setIsNotifOpen(false);
+  };
+
+  const handleLogout = async () => {
+    setIsProfileOpen(false);
+    setIsMobileMenuOpen(false);
+
+    const result = await Swal.fire({
+      title: 'Konfirmasi Keluar',
+      text: 'Apakah Anda yakin ingin keluar dari akun Anda?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#b91c1c',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Ya, Keluar',
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      logout();
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil Keluar',
+        text: 'Anda telah keluar dari sesi.',
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      navigate('/login', { replace: true });
+    }
   };
 
   const linkClass = ({ isActive }) =>
@@ -34,6 +95,8 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
     `block py-2 text-sm font-medium ${
       isActive ? 'text-red-700 font-bold' : 'text-gray-600'
     }`;
+
+  const userInitial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
 
   return (
     <>
@@ -49,7 +112,9 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <span className="text-lg font-bold text-red-700">Siap Siaga</span>
+            <NavLink to="/dashboard" className="text-lg font-bold text-red-700">
+              Siap Siaga
+            </NavLink>
           </div>
 
           {/* Navigasi Desktop */}
@@ -64,38 +129,54 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             
             {/* Megaphone / Sound Icon */}
             <button 
-            className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50 transition" 
-            onClick={() => setIsLaporOpen(true)}>              
-            <Megaphone size={18} />
+              className="p-2 text-gray-400 hover:text-red-600 rounded-xl hover:bg-gray-50 transition cursor-pointer"
+              onClick={() => setIsLaporModalOpen(true)}
+              title="Laporkan Kejadian Bencana"
+            >
+              <Megaphone size={18} />
             </button>
-
 
             {/* Notification Bell Dropdown */}
             <div className="relative">
               <button 
                 onClick={toggleNotif}
-                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition relative"
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-50 transition relative cursor-pointer"
+                title="Notifikasi"
               >
                 <Bell size={18} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
+                {unreadCount > 0 ? (
+                  <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-brand-red text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-xs">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                ) : (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"></span>
+                )}
               </button>
 
               {/* Dropdown Notifikasi */}
-              <NotificationDropdown isOpen={isNotifOpen} />
+              <NotificationDropdown
+                isOpen={isNotifOpen}
+                onClose={() => setIsNotifOpen(false)}
+                onNotificationRead={() => setUnreadCount(0)}
+              />
             </div>
 
             {/* User Profile Area (Klik untuk Buka Dropdown Account) */}
             <div className="relative">
               <button 
                 onClick={toggleProfile}
-                className="flex items-center gap-2 pl-2 border-l border-gray-200 hover:opacity-80 transition text-left"
+                className="flex items-center gap-2 pl-2 border-l border-gray-200 hover:opacity-80 transition text-left cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-yellow-300 flex items-center justify-center text-sm shadow-sm">
-                  🙂
+                <div className="w-8 h-8 rounded-full bg-red-100 text-primary-700 flex items-center justify-center text-xs font-bold shadow-sm">
+                  {currentUser.avatar_url ? (
+                    <img src={currentUser.avatar_url} alt={currentUser.name} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    userInitial
+                  )}
                 </div>
-                <div className="hidden sm:block">
-                  <p className="text-xs font-semibold text-gray-800 leading-tight">{user.name}</p>
-                  <p className="text-[11px] text-gray-400 leading-tight">{user.email}</p>
+                <div className="hidden sm:block max-w-[120px] truncate">
+                  <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{currentUser.name}</p>
+                  <p className="text-[11px] text-gray-400 leading-tight truncate">{currentUser.email}</p>
                 </div>
                 <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
               </button>
@@ -103,11 +184,12 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
               {/* Dropdown Profile User */}
               <ProfileDropdown 
                 isOpen={isProfileOpen} 
-                user={user}
-                onLogout={() => {
+                user={currentUser}
+                onLogout={handleLogout}
+                onChangePassword={() => {
                   setIsProfileOpen(false);
-                  alert('Logout Berhasil');
-                }} 
+                  setIsChangePasswordOpen(true);
+                }}
               />
             </div>
 
@@ -141,30 +223,45 @@ export default function DashboardNavbar({ user = { name: 'Farid Annas', email: '
             <button 
               onClick={() => {
                 setIsMobileMenuOpen(false);
-                setIsLaporOpen(true);
+                setIsChatOpen(true);
               }}
               className="w-full text-left py-2 text-sm font-semibold text-red-700 flex items-center gap-2"
             >
-              <Plus size={16} /> Buat Laporan Bencana
+              <Plus size={16} /> Buka Chatbot
+            </button>
+            <button 
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsChangePasswordOpen(true);
+              }}
+              className="w-full text-left py-2 text-sm font-medium text-gray-700 hover:text-red-700 flex items-center gap-2 border-t border-gray-100 pt-2"
+            >
+              <KeyRound size={16} /> Ubah Password
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="w-full text-left py-2 text-sm font-medium text-red-600 border-t border-gray-100 pt-2"
+            >
+              Keluar (Logout)
             </button>
           </div>
         )}
       </header>
 
-      {/* FLOATING ACTION BUTTON (Tombol Utama Lapor Merah di Pojok Kanan Bawah Sesuai Figma) */}
-      <button
-        onClick={() => setIsLaporOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-red-800 hover:bg-red-900 text-white p-3.5 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition duration-200 flex items-center justify-center"
-        title="Laporkan Kejadian / Bencana"
-      >
-        <MessageSquareText size={22} />
-      </button>
-
-      {/* MODAL LAPOR */}
-      <LaporModal 
-        isOpen={isLaporOpen} 
-        onClose={() => setIsLaporOpen(false)} 
+      {/* Modal Ubah Password */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
       />
+
+      <LaporModal
+        isOpen={isLaporModalOpen}
+        onClose={() => setIsLaporModalOpen(false)}
+      />
+
+      {/* FLOATING ACTION BUTTON (Tombol Utama Lapor Merah di Pojok Kanan Bawah Sesuai Figma) */}
+      <ChatbotToggleButton onClick={() => setIsChatOpen(true)} />
+      <ChatbotPopup open={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </>
   );
 }

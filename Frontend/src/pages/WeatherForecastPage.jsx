@@ -3,16 +3,18 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ChevronDown, ChevronUp, Wind, Droplets } from 'lucide-react';
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import PageWithChatbot from '../components/PageWithChatbot';
 import { hourlyForecast, weeklyForecastDetail } from '../data/cuacaData';
 
 export default function WeatherForecastPage() {
   const [expanded, setExpanded] = useState(weeklyForecastDetail[0]?.day ?? null);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavbar />
+    <PageWithChatbot>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <DashboardNavbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <div className="text-xs text-gray-400 mb-4">
           <Link to="/dashboard" className="hover:underline">Home</Link>
           <span className="mx-1.5">›</span>
@@ -104,5 +106,6 @@ export default function WeatherForecastPage() {
 
       <DashboardFooter />
     </div>
+  </PageWithChatbot>
   );
 }
