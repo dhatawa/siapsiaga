@@ -125,6 +125,12 @@ export default function DashboardUser() {
                   </p>
                   <p className="text-lg font-bold text-gray-900 mt-1">82%</p>
                 </div>
+                <div>
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <Activity size={13} /> Skala Richter (SR)
+                  </p>
+                  <p className="text-lg font-bold text-gray-900 mt-1">5.4 SR</p>
+                </div>
               </div>
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                 <p className="text-xs text-gray-500">Kondisi : Hujan Ringan</p>
@@ -133,6 +139,29 @@ export default function DashboardUser() {
                 </Link>
               </div>
             </div>
+
+            {/* <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <Thermometer size={13} /> Skala Richter (SR)
+                  </p>
+                  <p className="text-lg font-bold text-gray-900 mt-1">29°C</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <Droplets size={13} /> KELEMBAPAN
+                  </p>
+                  <p className="text-lg font-bold text-gray-900 mt-1">82%</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <p className="text-xs text-gray-500">Kondisi : Hujan Ringan</p>
+                <Link to="/prediksi-cuaca" className="text-xs text-primary-700 font-semibold hover:underline">
+                  Detail Cuaca →
+                </Link>
+              </div>
+            </div> */}
 
             {/* Prediksi Cuaca Mini */}
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">

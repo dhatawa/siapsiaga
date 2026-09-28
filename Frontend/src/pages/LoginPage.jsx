@@ -79,7 +79,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center bg-white p-8">
+      <div className="flex-1 flex items-center justify-center bg-white p-8 mt-5">
         <form onSubmit={handleSubmit} className="w-full max-w-sm">
           <h2 className="text-xl font-bold text-gray-900">Masuk ke Akun Anda</h2>
           <p className="text-sm text-gray-500 mt-2">

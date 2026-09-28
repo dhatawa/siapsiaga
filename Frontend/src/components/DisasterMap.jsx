@@ -107,11 +107,19 @@ export default function DisasterMap({
         attributionControl: false
       });
 
-      // CartoDB Voyager tiles (clean, sharp, modern aesthetic)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      // Basemap tile layer: gunakan OpenStreetMap gratis tanpa watermark & API key
+      // Mendukung VITE_CARTO_API_KEY jika pengguna memiliki API key Carto di kemudian hari
+      const cartoKey = import.meta.env.VITE_CARTO_API_KEY;
+      const tileUrl = cartoKey
+        ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=${cartoKey}`
+        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+      L.tileLayer(tileUrl, {
         maxZoom: 19,
-        subdomains: 'abcd',
-        attribution: '&copy; CartoDB &copy; OpenStreetMap'
+        subdomains: cartoKey ? 'abcd' : 'abc',
+        attribution: cartoKey
+          ? '&copy; CartoDB &copy; OpenStreetMap'
+          : '&copy; OpenStreetMap contributors'
       }).addTo(map);
 
       // Custom Zoom Control top-right
