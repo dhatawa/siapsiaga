@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api/reports';
+import { API_BASE_URL as API_ROOT } from './api';
+
+const API_BASE_URL = `${API_ROOT}/reports`;
 
 function getAuthHeaders(isFormData = false) {
   const token = localStorage.getItem('siapsiaga_token');

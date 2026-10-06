@@ -20,11 +20,11 @@ import {
 
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
+import { API_BASE_URL } from '../services/api';
 
 
 // API
-const API_URL =
-  'http://localhost:5000/api';
+const API_URL = API_BASE_URL;
 
 
 // KONTAK DARURAT

@@ -11,6 +11,7 @@ import { Calendar } from 'lucide-react';
 import DashboardNavbar from '../components/DashboardNavbar';
 import DashboardFooter from '../components/DashboardFooter';
 import PageWithChatbot from '../components/PageWithChatbot';
+import { API_BASE_URL } from '../services/api';
 
 const PAGE_SIZE = 6;
 
@@ -24,7 +25,7 @@ const newsCategories = [
   'Bencana'
 ];
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = API_BASE_URL;
 
 export default function BeritaPage() {
 
