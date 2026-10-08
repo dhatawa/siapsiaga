@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LayoutDashboard, BellRing, BookOpenCheck, Database, BrainCircuit, Radio, ShieldCheck, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
+import SijanSmartShowcase from '../components/SijanSmartShowcase';
 
 const features = [
   {
@@ -161,6 +162,20 @@ export default function LandingPage() {
               <p className="mt-3 text-sm leading-relaxed text-gray-500">{desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Perangkat IoT */}
+      <section id="iot" className="fade-in-element max-w-7xl mx-auto px-6 py-16">
+        <div className="text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Perangkat IoT Siap Siaga</h2>
+          <div className="mx-auto mt-4 h-1.5 w-24 rounded-full bg-red-600"></div>
+          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-gray-500 leading-relaxed">
+            Kenali prototype sensor lapangan kami. Klik perangkat untuk membongkar casing dan melihat fungsi setiap komponennya.
+          </p>
+        </div>
+        <div className="mt-12">
+          <SijanSmartShowcase />
         </div>
       </section>
 

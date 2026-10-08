@@ -1,11 +1,13 @@
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+import { API_URL } from '../config';
+
+const API_BASE_URL = `${API_URL}/auth`;
 
 export const authService = {
   /**
    * Registrasi User Baru
-   * @param {object} param0 { name, email, password, confirmPassword }
+   * @param {object} param0 { name, email, password, confirmPassword, otp }
    */
-  async register({ name, email, password, confirmPassword }) {
+  async register({ name, email, password, confirmPassword, otp }) {
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: 'POST',
       headers: {
@@ -16,6 +18,7 @@ export const authService = {
         email,
         password,
         confirmPassword,
+        otp,
       }),
     });
 
@@ -23,6 +26,50 @@ export const authService = {
 
     if (!response.ok) {
       throw new Error(data.message || 'Gagal melakukan registrasi.');
+    }
+
+    return data;
+  },
+
+  /**
+   * Kirim Kode OTP ke Email
+   * @param {object} param0 { email, name, purpose: 'register' | 'reset_password' }
+   */
+  async requestOtp({ email, name, purpose }) {
+    const response = await fetch(`${API_BASE_URL}/otp/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, name, purpose }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Gagal mengirim kode OTP.');
+    }
+
+    return data;
+  },
+
+  /**
+   * Atur Ulang Password dengan Kode OTP (Lupa Password)
+   * @param {object} param0 { email, otp, newPassword, confirmPassword }
+   */
+  async resetPassword({ email, otp, newPassword, confirmPassword }) {
+    const response = await fetch(`${API_BASE_URL}/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, otp, newPassword, confirmPassword }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Gagal mengatur ulang password.');
     }
 
     return data;

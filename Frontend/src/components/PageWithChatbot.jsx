@@ -1,14 +1,5 @@
-import { useState } from 'react';
-import ChatbotPopup, { ChatbotToggleButton } from './ChatbotPopup';
-
+// Tombol & popup chatbot sudah dirender oleh DashboardNavbar,
+// komponen ini dipertahankan agar halaman yang memakainya tidak perlu diubah.
 export default function PageWithChatbot({ children }) {
-  const [chatOpen, setChatOpen] = useState(false);
-
-  return (
-    <>
-      {children}
-      <ChatbotToggleButton onClick={() => setChatOpen((open) => !open)} />
-      <ChatbotPopup open={chatOpen} onClose={() => setChatOpen(false)} />
-    </>
-  );
+  return children;
 }

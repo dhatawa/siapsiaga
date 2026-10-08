@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api/notifications';
+import { API_URL } from '../config';
+
+const API_BASE_URL = `${API_URL}/notifications`;
 
 export const notificationService = {
   /**

@@ -23,6 +23,64 @@ import {
 } from 'lucide-react';
 import { reportService } from '../services/reportService';
 import { adminStations } from '../data/adminData';
+import { API_URL, MAP_API_KEY } from '../config';
+
+// Basemap CARTO wajib memakai API key (VITE_MAP_API_KEY di .env root), lihat carto.com/basemaps/apikey
+function cartoUrl(style) {
+  return `https://{s}.basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png?key=${MAP_API_KEY}`;
+}
+
+const CARTO_OPTIONS = {
+  maxZoom: 20,
+  subdomains: 'abcd',
+  attribution: '&copy; OpenStreetMap &copy; CARTO'
+};
+
+// Pilihan peta dasar
+const BASE_LAYERS = {
+  standar: {
+    label: 'Standar',
+    url: cartoUrl('voyager'),
+    options: CARTO_OPTIONS
+  },
+  satelit: {
+    label: 'Satelit',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    options: { maxZoom: 19, attribution: 'Citra &copy; Esri' },
+    // Label nama tempat di atas citra satelit
+    labels: cartoUrl('voyager_only_labels')
+  },
+  gelap: {
+    label: 'Gelap',
+    url: cartoUrl('dark_all'),
+    options: CARTO_OPTIONS
+  }
+};
+
+const DEFAULT_BASE_LAYER = Object.keys(BASE_LAYERS)[0];
+
+function createBaseLayer(key) {
+  const config = BASE_LAYERS[key] || BASE_LAYERS[DEFAULT_BASE_LAYER];
+  const tiles = [L.tileLayer(config.url, config.options)];
+  if (config.labels) {
+    tiles.push(L.tileLayer(config.labels, { maxZoom: 20, subdomains: 'abcd', pane: 'overlayPane' }));
+  }
+  return L.layerGroup(tiles);
+}
+
+// Koordinat BMKG berformat "lat,lon"
+function parseBmkgCoordinates(coordinates) {
+  const [lat, lng] = String(coordinates || '').split(',').map(Number);
+  return Number.isFinite(lat) && Number.isFinite(lng) ? [lat, lng] : null;
+}
+
+function escapeHtml(text = '') {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 // SVG Icons generator untuk Leaflet DivIcon
 const DISASTER_COLORS = {
@@ -80,7 +138,7 @@ export default function DisasterMap({
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersLayerRef = useRef(null);
-  const userMarkerRef = useRef(null);
+  const baseLayerRef = useRef(null);
 
   // States
   const [reports, setReports] = useState([]);
@@ -91,6 +149,10 @@ export default function DisasterMap({
   const [showStations, setShowStations] = useState(true);
   const [nearestStation, setNearestStation] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [baseLayer, setBaseLayer] = useState(DEFAULT_BASE_LAYER);
+  const [showLayerMenu, setShowLayerMenu] = useState(false);
+  const [earthquake, setEarthquake] = useState(null);
+  const [showEarthquake, setShowEarthquake] = useState(true);
 
   // Initialize Map
   useEffect(() => {
@@ -104,18 +166,20 @@ export default function DisasterMap({
         center: defaultCenter,
         zoom: 12,
         zoomControl: false,
-        attributionControl: false
+        attributionControl: false,
+        zoomAnimation: true,
+        fadeAnimation: true,
+        markerZoomAnimation: true
       });
-
-      // CartoDB Voyager tiles (clean, sharp, modern aesthetic)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        subdomains: 'abcd',
-        attribution: '&copy; CartoDB &copy; OpenStreetMap'
-      }).addTo(map);
 
       // Custom Zoom Control top-right
       L.control.zoom({ position: 'topright' }).addTo(map);
+
+      // Atribusi penyedia peta (ringkas) & skala jarak
+      L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(map);
+      L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 90 }).addTo(map);
+
+      baseLayerRef.current = createBaseLayer(baseLayer).addTo(map);
 
       const markersGroup = L.layerGroup().addTo(map);
       markersLayerRef.current = markersGroup;
@@ -128,6 +192,32 @@ export default function DisasterMap({
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
+    };
+  }, []);
+
+  // Ganti peta dasar (Standar / Satelit / Gelap / Premium)
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const group = createBaseLayer(baseLayer).addTo(map);
+    baseLayerRef.current?.remove();
+    baseLayerRef.current = group;
+  }, [baseLayer]);
+
+  // Gempa bumi terkini dari BMKG
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`${API_URL}/bmkg/earthquake`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (!cancelled && json?.data) setEarthquake(json.data);
+      })
+      .catch((err) => console.warn('Failed to load BMKG earthquake for map:', err));
+
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -315,7 +405,58 @@ export default function DisasterMap({
       });
     }
 
-    // 3. Render IoT Sensor Stations Markers
+    // 3. Render Gempa Terkini BMKG
+    const quakePos = earthquake && parseBmkgCoordinates(earthquake.coordinates);
+    if (showEarthquake && quakePos) {
+      const quakeHtml = `
+        <div class="quake-beacon">
+          <div class="quake-ring"></div>
+          <div class="quake-ring quake-ring-delay"></div>
+          <div class="quake-core">${escapeHtml(earthquake.magnitude)}</div>
+        </div>
+      `;
+
+      const quakeIcon = L.divIcon({
+        html: quakeHtml,
+        className: 'quake-marker-pin',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+        popupAnchor: [0, -18]
+      });
+
+      const quakeMarker = L.marker(quakePos, { icon: quakeIcon, zIndexOffset: 1000 });
+
+      quakeMarker.bindPopup(`
+        <div class="p-3.5 text-xs max-w-xs">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase" style="background-color: #FEF2F2; color: #DC2626; border: 1px solid #FCA5A5;">
+              Gempa Terkini BMKG
+            </span>
+            <span class="text-[10px] text-gray-400">${escapeHtml(earthquake.date)} ${escapeHtml(earthquake.time)}</span>
+          </div>
+
+          <p class="font-bold text-gray-900 text-sm leading-snug mb-1">${escapeHtml(earthquake.location)}</p>
+
+          <div class="grid grid-cols-2 gap-2 my-2.5 p-2 rounded-lg bg-gray-50 text-[11px]">
+            <div>
+              <p class="text-gray-400">Magnitudo</p>
+              <p class="font-semibold text-gray-800">M ${escapeHtml(earthquake.magnitude)}</p>
+            </div>
+            <div>
+              <p class="text-gray-400">Kedalaman</p>
+              <p class="font-semibold text-gray-800">${escapeHtml(earthquake.depth)}</p>
+            </div>
+          </div>
+
+          ${earthquake.potential ? `<p class="text-[11px] font-semibold text-red-600">${escapeHtml(earthquake.potential)}</p>` : ''}
+          ${earthquake.felt ? `<p class="text-[11px] text-gray-500 mt-1">Dirasakan: ${escapeHtml(earthquake.felt)}</p>` : ''}
+        </div>
+      `, { className: 'custom-leaflet-popup', minWidth: 240 });
+
+      layer.addLayer(quakeMarker);
+    }
+
+    // 4. Render IoT Sensor Stations Markers
     if (showStations) {
       adminStations.forEach((st) => {
         if (!st.lat || !st.lng) return;
@@ -374,7 +515,7 @@ export default function DisasterMap({
         layer.addLayer(marker);
       });
     }
-  }, [reports, showReports, showStations, userLocation, nearestStation, mode]);
+  }, [reports, showReports, showStations, showEarthquake, earthquake, userLocation, nearestStation, mode]);
 
   // Focus to specific station if prop changes
   useEffect(() => {
@@ -388,8 +529,10 @@ export default function DisasterMap({
       {/* Map Element Container */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Top-Left Overlay: Nearest Sensor Info or GPS Badge */}
-      <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 max-w-[280px] sm:max-w-xs">
+      {/* Top Overlay: badge di kiri, kontrol di kanan; kontrol turun ke baris baru bila peta sempit */}
+      <div className="absolute top-3 left-3 right-12 z-10 flex flex-wrap items-start gap-1.5 pointer-events-none [&>*]:pointer-events-auto">
+      {/* Nearest Sensor Info or GPS Badge */}
+      <div className="min-w-0 max-w-full sm:max-w-xs">
         {nearestStation ? (
           <div className="bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2 text-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
@@ -410,8 +553,8 @@ export default function DisasterMap({
         )}
       </div>
 
-      {/* Top-Right Map Controls: Location Button & Layer Toggles */}
-      <div className="absolute top-3 right-12 z-10 flex items-center gap-1.5">
+      {/* Map Controls: Location Button & Layer Toggles */}
+      <div className="ml-auto flex items-center gap-1.5">
         {/* GPS Locate Me Button */}
         <button
           onClick={handleGetLocation}
@@ -457,6 +600,58 @@ export default function DisasterMap({
           <Radio size={13} />
           <span className="hidden sm:inline">Sensor</span>
         </button>
+
+        {/* Toggle Gempa BMKG Layer */}
+        {earthquake && (
+          <button
+            onClick={() => setShowEarthquake(!showEarthquake)}
+            className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition ${
+              showEarthquake
+                ? 'bg-red-600 text-white border-red-600'
+                : 'bg-white/95 text-gray-600 border-gray-200'
+            }`}
+            title="Tampilkan/Sembunyikan Gempa Terkini BMKG"
+          >
+            <Activity size={13} />
+            <span className="hidden sm:inline">Gempa</span>
+          </button>
+        )}
+
+        {/* Pilihan Peta Dasar */}
+        <div className="relative">
+          <button
+            onClick={() => setShowLayerMenu((v) => !v)}
+            className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition ${
+              showLayerMenu ? 'bg-gray-900 text-white border-gray-900' : 'bg-white/95 text-gray-700 border-gray-200 hover:bg-white'
+            }`}
+            title="Pilih Tampilan Peta"
+          >
+            <Layers size={13} />
+            <span className="hidden sm:inline">{BASE_LAYERS[baseLayer]?.label}</span>
+          </button>
+
+          {showLayerMenu && (
+            <div className="absolute right-0 mt-1.5 w-36 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg p-1 map-menu-in">
+              {Object.entries(BASE_LAYERS).map(([key, cfg]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setBaseLayer(key);
+                    setShowLayerMenu(false);
+                  }}
+                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition ${
+                    baseLayer === key ? 'bg-red-50 text-brand-red font-semibold' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {cfg.label}
+                  {baseLayer === key && <CheckCircle2 size={12} />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       </div>
 
       {/* Bottom-Right Legend Overlay */}
@@ -476,6 +671,11 @@ export default function DisasterMap({
         <span className="flex items-center gap-1 font-semibold text-gray-800">
           <span className="w-2.5 h-2.5 rounded bg-emerald-600"></span> IoT
         </span>
+        {earthquake && (
+          <span className="flex items-center gap-1 font-semibold text-gray-800">
+            <span className="w-2.5 h-2.5 rounded-full border-2 border-red-600 bg-red-100"></span> BMKG
+          </span>
+        )}
       </div>
     </div>
   );

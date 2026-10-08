@@ -3,8 +3,14 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
-// Endpoint Registrasi User
+// Endpoint Kirim Kode OTP ke Email (register / reset_password)
+router.post('/otp/request', authController.requestOtp);
+
+// Endpoint Registrasi User (wajib menyertakan kode OTP)
 router.post('/register', authController.register);
+
+// Endpoint Lupa Password (reset menggunakan kode OTP)
+router.post('/reset-password', authController.resetPassword);
 
 // Endpoint Login User & Admin
 router.post('/login', authController.login);

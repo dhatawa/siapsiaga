@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+require('./config/env');
 
 const newsRoutes = require('./routes/newsRoutes');
 const bmkgRoutes = require('./routes/bmkgRoutes');
@@ -11,6 +11,7 @@ const contentRoutes = require('./routes/contentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const { startNewsNotifier } = require('./services/newsNotifier');
 
 const app = express();
 
@@ -100,4 +101,6 @@ app.listen(PORT, () => {
   console.log(`  BMKG   : http://localhost:${PORT}/api/bmkg/earthquake`);
   console.log('================================');
   console.log('');
+
+  startNewsNotifier();
 });

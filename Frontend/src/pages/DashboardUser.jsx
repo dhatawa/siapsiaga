@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   AlertTriangle,
   Thermometer,
@@ -18,8 +18,8 @@ import {
   Waves
 } from 'lucide-react';
 import DashboardNavbar from '../components/DashboardNavbar';
+import SijanSmartShowcase from '../components/SijanSmartShowcase';
 import AlertCard from '../components/AlertCard';
-import ChatbotPopup, { ChatbotToggleButton } from '../components/ChatbotPopup';
 import DisasterMap from '../components/DisasterMap';
 import { useAuth } from '../context/AuthContext';
 import { reportService } from '../services/reportService';
@@ -50,12 +50,18 @@ const forecast = [
 ];
 
 export default function DashboardUser() {
-  const [chatOpen, setChatOpen] = useState(false);
   const { user } = useAuth();
   const [validatedReports, setValidatedReports] = useState([]);
   const [selectedReportPreview, setSelectedReportPreview] = useState(null);
 
   const userName = user?.name ? user.name.split(' ')[0] : 'Pengguna';
+
+  // Gulir ke section yang dituju hash URL (mis. menu "IoT" → /dashboard#iot)
+  const location = useLocation();
+  useEffect(() => {
+    if (!location.hash) return;
+    document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [location.hash, location.key]);
 
   useEffect(() => {
     async function loadReports() {
@@ -198,6 +204,15 @@ export default function DashboardUser() {
             )}
           </div> */}
         </div>
+
+        {/* Perangkat IoT */}
+        <section id="iot" className="mt-10 scroll-mt-24">
+          <h2 className="text-lg font-bold text-gray-900">Perangkat IoT</h2>
+          <p className="mt-1 mb-5 text-sm text-gray-500">
+            Prototype sensor lapangan Siap Siaga. Klik perangkat untuk membongkar casing dan melihat fungsi setiap komponennya.
+          </p>
+          <SijanSmartShowcase />
+        </section>
       </main>
 
       {/* Modal Preview Detail Laporan dari Peta */}
@@ -298,8 +313,6 @@ export default function DashboardUser() {
         </div>
       </footer>
 
-      <ChatbotToggleButton onClick={() => setChatOpen((v) => !v)} />
-      <ChatbotPopup open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

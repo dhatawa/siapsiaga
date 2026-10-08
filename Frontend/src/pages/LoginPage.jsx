@@ -121,7 +121,7 @@ export default function LoginPage() {
 
           <div className="flex items-center justify-between mt-5 mb-1.5">
             <label className="text-sm font-medium text-gray-700">Kata Sandi</label>
-            <a href="#" className="text-xs text-primary-700 hover:underline">Lupa Password?</a>
+            <Link to="/lupa-password" className="text-xs text-primary-700 hover:underline">Lupa Password?</Link>
           </div>
           <div className="relative">
             <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />

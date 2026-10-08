@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModel');
+const OtpModel = require('../models/otpModel');
+const { sendOtpEmail } = require('../services/mailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'siap_siaga_secret_2026';
 const JWT_EXPIRES_IN = '7d';
@@ -10,7 +12,7 @@ const JWT_EXPIRES_IN = '7d';
  */
 async function register(req, res) {
   try {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password, confirmPassword, otp } = req.body;
 
     // 1. Validasi field wajib
     if (!name || !name.trim()) {
@@ -64,6 +66,22 @@ async function register(req, res) {
       return res.status(400).json({
         success: false,
         message: 'Email sudah terdaftar. Silakan gunakan email lain atau login.'
+      });
+    }
+
+    // 4b. Verifikasi kode OTP yang dikirim ke email
+    if (!otp || !String(otp).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kode OTP wajib diisi. Silakan cek email Anda.'
+      });
+    }
+
+    const otpResult = await OtpModel.verify(email, 'register', otp);
+    if (!otpResult.valid) {
+      return res.status(400).json({
+        success: false,
+        message: otpResult.message
       });
     }
 
@@ -320,9 +338,161 @@ async function changePassword(req, res) {
   }
 }
 
+/**
+ * Controller untuk mengirim kode OTP ke email
+ * purpose: 'register' (daftar akun baru) atau 'reset_password' (lupa password)
+ */
+async function requestOtp(req, res) {
+  try {
+    const { email, name, purpose } = req.body;
+
+    if (!['register', 'reset_password'].includes(purpose)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tujuan OTP tidak valid.'
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Format email tidak valid.'
+      });
+    }
+
+    const cooldown = await OtpModel.getCooldownSeconds(email, purpose);
+    if (cooldown > 0) {
+      return res.status(429).json({
+        success: false,
+        message: `Tunggu ${cooldown} detik sebelum meminta kode OTP baru.`,
+        data: { cooldown }
+      });
+    }
+
+    const user = await UserModel.findByEmail(email);
+
+    if (purpose === 'register' && user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email sudah terdaftar. Silakan gunakan email lain atau login.'
+      });
+    }
+
+    // Untuk lupa password, jangan bocorkan apakah email terdaftar atau tidak
+    if (purpose === 'reset_password' && (!user || user.status !== 'aktif')) {
+      return res.json({
+        success: true,
+        message: 'Jika email terdaftar, kode OTP telah dikirim ke email tersebut.',
+        data: { expiresMinutes: OtpModel.EXPIRES_MINUTES }
+      });
+    }
+
+    const otp = await OtpModel.create(email, purpose);
+
+    try {
+      await sendOtpEmail({
+        to: email.trim(),
+        name: user?.name || name,
+        code: otp.code,
+        purpose,
+        expiresMinutes: OtpModel.EXPIRES_MINUTES
+      });
+    } catch (error) {
+      try {
+        await OtpModel.remove(otp.id);
+      } catch (cleanupError) {
+        console.error('OTP CLEANUP ERROR:', cleanupError);
+      }
+      throw error;
+    }
+
+    return res.json({
+      success: true,
+      message: purpose === 'register'
+        ? 'Kode OTP telah dikirim ke email Anda.'
+        : 'Jika email terdaftar, kode OTP telah dikirim ke email tersebut.',
+      data: { expiresMinutes: OtpModel.EXPIRES_MINUTES }
+    });
+
+  } catch (error) {
+    console.error('REQUEST OTP ERROR:', error);
+    const mailAuthFailed = error && error.code === 'EAUTH' && Number(error.responseCode) === 535;
+    return res.status(mailAuthFailed ? 503 : 500).json({
+      success: false,
+      message: mailAuthFailed
+        ? 'Server email menolak autentikasi. Pastikan EMAIL_USER benar dan EMAIL_PASS berisi Google App Password yang valid.'
+        : 'Gagal mengirim kode OTP. Silakan coba lagi.'
+    });
+  }
+}
+
+/**
+ * Controller untuk mengatur ulang password menggunakan kode OTP (Lupa Password)
+ */
+async function resetPassword(req, res) {
+  try {
+    const { email, otp, newPassword, confirmPassword } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email dan kode OTP wajib diisi.'
+      });
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password baru minimal terdiri dari 6 karakter.'
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Konfirmasi password tidak cocok dengan password baru.'
+      });
+    }
+
+    const otpResult = await OtpModel.verify(email, 'reset_password', otp);
+    if (!otpResult.valid) {
+      return res.status(400).json({
+        success: false,
+        message: otpResult.message
+      });
+    }
+
+    const user = await UserModel.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pengguna tidak ditemukan.'
+      });
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    await UserModel.updatePassword(user.id, newPasswordHash);
+
+    return res.json({
+      success: true,
+      message: 'Password berhasil diatur ulang. Silakan login dengan password baru.'
+    });
+
+  } catch (error) {
+    console.error('RESET PASSWORD ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan saat mengatur ulang password.'
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
   getMe,
-  changePassword
+  changePassword,
+  requestOtp,
+  resetPassword
 };

@@ -5,6 +5,7 @@ import PublicOnlyRoute from './components/PublicOnlyRoute';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardUser from './pages/DashboardUser';
 import EdukasiTipsPage from './pages/EdukasiTipsPage';
 import PanduanLengkapPage from './pages/PanduanLengkapPage';
@@ -53,6 +54,14 @@ function App() {
             element={
               <PublicOnlyRoute>
                 <RegisterPage />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route
+            path="/lupa-password"
+            element={
+              <PublicOnlyRoute>
+                <ForgotPasswordPage />
               </PublicOnlyRoute>
             }
           />

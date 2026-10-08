@@ -4,6 +4,7 @@ const navLinks = [
   { label: 'Dashboard', target: 'dashboard' },
   { label: 'Fitur Utama', target: 'fitur' },
   { label: 'Cara Kerja', target: 'cara-kerja' },
+  { label: 'IoT', target: 'iot' },
   { label: 'Status', target: 'status' },
 ];
 

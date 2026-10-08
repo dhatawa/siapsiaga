@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Megaphone, ChevronDown, Bell, Menu, X, Plus, KeyRound } from 'lucide-react';
 import Swal from 'sweetalert2';
 import NotificationDropdown from './NotificationDropdown';
@@ -122,6 +122,7 @@ export default function DashboardNavbar({ user: propUser }) {
             <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
             <NavLink to="/edukasi" className={linkClass}>Edukasi & Tips</NavLink>
             <NavLink to="/berita" className={linkClass}>Berita</NavLink>
+            <Link to="/dashboard#iot" className="text-sm font-medium transition text-gray-500 hover:text-gray-800 pb-4">IoT</Link>
           </nav>
 
           {/* Area Kanan: Icon Tools & User Profile */}
@@ -220,6 +221,13 @@ export default function DashboardNavbar({ user: propUser }) {
             >
               Berita
             </NavLink>
+            <Link
+              to="/dashboard#iot"
+              className="block py-2 text-sm font-medium text-gray-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              IoT
+            </Link>
             <button 
               onClick={() => {
                 setIsMobileMenuOpen(false);
@@ -260,7 +268,7 @@ export default function DashboardNavbar({ user: propUser }) {
       />
 
       {/* FLOATING ACTION BUTTON (Tombol Utama Lapor Merah di Pojok Kanan Bawah Sesuai Figma) */}
-      <ChatbotToggleButton onClick={() => setIsChatOpen(true)} />
+      <ChatbotToggleButton open={isChatOpen} onClick={() => setIsChatOpen((v) => !v)} />
       <ChatbotPopup open={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </>
   );

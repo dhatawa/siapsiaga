@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const API_KEY = process.env.GNEWS_API_KEY;
 
 // ======================================================
@@ -8,6 +10,35 @@ let newsCache = null;
 
 // Cache berlaku selama 10 menit
 const CACHE_DURATION = 10 * 60 * 1000;
+
+// Arsip semua berita yang pernah diambil, agar link detail
+// (termasuk link di email notifikasi) tetap bisa dibuka
+// walaupun berita sudah tergeser dari daftar terbaru
+const newsArchive = new Map();
+const MAX_ARCHIVE = 300;
+
+function archiveNews(items) {
+  items.forEach((item) => newsArchive.set(item.id, item));
+
+  while (newsArchive.size > MAX_ARCHIVE) {
+    newsArchive.delete(newsArchive.keys().next().value);
+  }
+}
+
+function getArchivedNews(id) {
+  return newsArchive.get(id) || null;
+}
+
+// ID stabil berdasarkan URL artikel (tidak berubah walau urutan berita berubah)
+function createNewsId(article) {
+  const source = article.url || `${article.title}-${article.publishedAt}`;
+
+  return `gnews-${crypto
+    .createHash('sha1')
+    .update(source)
+    .digest('hex')
+    .slice(0, 12)}`;
+}
 
 // ======================================================
 // CATEGORY
@@ -231,7 +262,7 @@ async function getDisasterNews() {
   // ====================================================
 
   const formattedNews =
-    articles.map((article, index) => {
+    articles.map((article) => {
 
       const category =
         determineCategory(
@@ -281,9 +312,7 @@ async function getDisasterNews() {
         // ==============================================
 
         id:
-          `gnews-${index}-${Date.parse(
-            article.publishedAt
-          )}`,
+          createNewsId(article),
 
         // ==============================================
         // TITLE
@@ -358,6 +387,8 @@ async function getDisasterNews() {
   // 8. SIMPAN CACHE
   // ====================================================
 
+  archiveNews(formattedNews);
+
   newsCache = {
     data: formattedNews,
     timestamp: Date.now()
@@ -380,5 +411,6 @@ async function getDisasterNews() {
 
 module.exports = {
   getDisasterNews,
+  getArchivedNews,
   determineCategory
 };

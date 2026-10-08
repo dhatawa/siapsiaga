@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
+import OtpInput, { OTP_LENGTH } from '../components/OtpInput';
+
+const RESEND_COOLDOWN = 60;
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,9 +19,48 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState('form'); // 'form' | 'otp'
+  const [otp, setOtp] = useState('');
+  const [cooldown, setCooldown] = useState(0);
 
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const sendOtp = async () => {
+    await authService.requestOtp({
+      email: form.email.trim(),
+      name: form.name.trim(),
+      purpose: 'register',
+    });
+    setOtp('');
+    setCooldown(RESEND_COOLDOWN);
+  };
+
+  const handleResend = async () => {
+    if (cooldown > 0 || loading) return;
+    setError('');
+    setLoading(true);
+    try {
+      await sendOtp();
+      Swal.fire({
+        icon: 'success',
+        title: 'Kode OTP Dikirim Ulang',
+        text: `Cek kotak masuk ${form.email.trim()}.`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      setError(err.message || 'Gagal mengirim ulang kode OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const update = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
@@ -68,11 +111,41 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      await sendOtp();
+      setStep('otp');
+    } catch (err) {
+      const errorMsg = err.message || 'Gagal mengirim kode OTP.';
+      setError(errorMsg);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal Mengirim OTP',
+        text: errorMsg,
+        confirmButtonColor: '#b91c1c',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (otp.length !== OTP_LENGTH) {
+      setError(`Masukkan ${OTP_LENGTH} digit kode OTP.`);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
       await register({
         name: form.name.trim(),
         email: form.email.trim(),
         password: form.password,
         confirmPassword: form.confirmPassword,
+        otp,
       });
 
       // Tampilkan SweetAlert sukses registrasi
@@ -121,6 +194,80 @@ export default function RegisterPage() {
       </div>
 
       <div className="flex-1 flex items-center justify-center bg-white p-8">
+        {step === 'otp' ? (
+          <form onSubmit={handleVerify} className="w-full max-w-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setStep('form');
+                setError('');
+              }}
+              disabled={loading}
+              className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-5 cursor-pointer"
+            >
+              <ArrowLeft size={14} /> Ubah data pendaftaran
+            </button>
+
+            <div className="w-12 h-12 rounded-full bg-primary-50 text-primary-700 flex items-center justify-center mb-4">
+              <ShieldCheck size={22} />
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900">Verifikasi Email</h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Masukkan {OTP_LENGTH} digit kode OTP yang telah kami kirim ke{' '}
+              <span className="font-semibold text-gray-800">{form.email.trim()}</span>.
+            </p>
+
+            {error && (
+              <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2 animate-in fade-in duration-200">
+                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <OtpInput
+                value={otp}
+                onChange={(v) => {
+                  setOtp(v);
+                  if (error) setError('');
+                }}
+                disabled={loading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || otp.length !== OTP_LENGTH}
+              className="w-full mt-7 bg-primary-700 hover:bg-primary-800 disabled:opacity-70 text-white text-sm font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Memverifikasi...
+                </>
+              ) : (
+                'Verifikasi & Daftar'
+              )}
+            </button>
+
+            <p className="text-center text-sm text-gray-500 mt-5">
+              Tidak menerima kode?{' '}
+              {cooldown > 0 ? (
+                <span className="text-gray-400">Kirim ulang dalam {cooldown} detik</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={loading}
+                  className="text-primary-700 font-medium hover:underline cursor-pointer"
+                >
+                  Kirim ulang
+                </button>
+              )}
+            </p>
+          </form>
+        ) : (
         <form onSubmit={handleSubmit} className="w-full max-w-sm">
           <h2 className="text-xl font-bold text-gray-900">Daftar Akun Baru</h2>
           <p className="text-sm text-gray-500 mt-2">
@@ -216,7 +363,7 @@ export default function RegisterPage() {
             {loading ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                Mendaftarkan Akun...
+                Mengirim Kode OTP...
               </>
             ) : (
               'Daftar Sekarang'
@@ -230,6 +377,7 @@ export default function RegisterPage() {
             </Link>
           </p>
         </form>
+        )}
       </div>
     </div>
   );

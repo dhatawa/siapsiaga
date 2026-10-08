@@ -1,5 +1,6 @@
 const {
-  getDisasterNews
+  getDisasterNews,
+  getArchivedNews
 } = require('../services/gnewsService');
 
 
@@ -34,9 +35,9 @@ async function getNewsDetail(req, res) {
 
     const news = await getDisasterNews();
 
-    const article = news.find(
-      (item) => item.id === id
-    );
+    const article =
+      news.find((item) => item.id === id) ||
+      getArchivedNews(id);
 
     if (!article) {
       return res.status(404).json({
