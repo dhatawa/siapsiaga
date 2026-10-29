@@ -166,17 +166,15 @@ export default function LandingPage() {
       </section>
 
       {/* Perangkat IoT */}
-      <section id="iot" className="fade-in-element max-w-7xl mx-auto px-6 py-16">
-        <div className="text-center">
+      <section id="iot" className="fade-in-element">
+        <div className="text-center max-w-7xl mx-auto px-6 pt-16 pb-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Perangkat IoT Siap Siaga</h2>
           <div className="mx-auto mt-4 h-1.5 w-24 rounded-full bg-red-600"></div>
           <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-gray-500 leading-relaxed">
             Kenali prototype sensor lapangan kami. Klik perangkat untuk membongkar casing dan melihat fungsi setiap komponennya.
           </p>
         </div>
-        <div className="mt-12">
-          <SijanSmartShowcase />
-        </div>
+        <SijanSmartShowcase />
       </section>
 
       {/* Status */}
