@@ -23,47 +23,46 @@ import {
 } from 'lucide-react';
 import { reportService } from '../services/reportService';
 import { adminStations } from '../data/adminData';
-import { API_URL, MAP_API_KEY } from '../config';
-
-// Basemap CARTO wajib memakai API key (VITE_MAP_API_KEY di .env root), lihat carto.com/basemaps/apikey
-function cartoUrl(style) {
-  return `https://{s}.basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png?key=${MAP_API_KEY}`;
-}
-
-const CARTO_OPTIONS = {
-  maxZoom: 20,
-  subdomains: 'abcd',
-  attribution: '&copy; OpenStreetMap &copy; CARTO'
-};
+import { API_URL } from '../config';
 
 // Pilihan peta dasar
 const BASE_LAYERS = {
   standar: {
     label: 'Standar',
-    url: cartoUrl('voyager'),
-    options: CARTO_OPTIONS
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
   },
   satelit: {
     label: 'Satelit',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    options: { maxZoom: 19, attribution: 'Citra &copy; Esri' },
-    // Label nama tempat di atas citra satelit
-    labels: cartoUrl('voyager_only_labels')
+    options: {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri — Sources: Esri, Maxar, Earthstar Geographics'
+    },
+    labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer/tile/{z}/{y}/{x}'
   },
   gelap: {
     label: 'Gelap',
-    url: cartoUrl('dark_all'),
-    options: CARTO_OPTIONS
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors',
+      className: 'disaster-map-dark-tiles'
+    }
   }
 };
 
-const DEFAULT_BASE_LAYER = Object.keys(BASE_LAYERS)[0];
+const DEFAULT_BASE_LAYER = 'satelit';
 
 function createBaseLayer(key) {
   const config = BASE_LAYERS[key] || BASE_LAYERS[DEFAULT_BASE_LAYER];
   const tiles = [L.tileLayer(config.url, config.options)];
   if (config.labels) {
-    tiles.push(L.tileLayer(config.labels, { maxZoom: 20, subdomains: 'abcd', pane: 'overlayPane' }));
+    tiles.push(L.tileLayer(config.labels, {
+      maxZoom: 19,
+      attribution: '&copy; Esri',
+      pane: 'overlayPane'
+    }));
   }
   return L.layerGroup(tiles);
 }
@@ -195,7 +194,7 @@ export default function DisasterMap({
     };
   }, []);
 
-  // Ganti peta dasar (Standar / Satelit / Gelap / Premium)
+  // Ganti peta dasar (Standar / Satelit / Gelap)
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
