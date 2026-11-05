@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, BellRing, BookOpenCheck, Database, BrainCircuit, Radio, ShieldCheck, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, BellRing, BookOpenCheck, Database, BrainCircuit, Radio, ShieldCheck, CheckCircle, ChevronLeft, ChevronRight, Maximize2, X, Activity, Layers } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
 import SijanSmartShowcase from '../components/SijanSmartShowcase';
+import DisasterMap from '../components/DisasterMap';
 
 const features = [
   {
@@ -36,6 +37,23 @@ const stats = [
 ];
 
 export default function LandingPage() {
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsMapExpanded(false);
+    };
+    if (isMapExpanded) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isMapExpanded]);
   useEffect(() => {
     const sections = document.querySelectorAll('.fade-in-element');
     const observer = new IntersectionObserver(
@@ -120,6 +138,97 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Peta Pemantauan Geospasial Real-time (Sesuai Sketsa Kotak Merah & Teks Biru) */}
+      <section id="peta" className="fade-in-element max-w-7xl mx-auto px-6 py-20">
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          {/* Kolom Kiri: Gambaran Maps (Kotak Merah di Sketsa) */}
+          <div className="lg:col-span-7 relative group">
+            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 bg-white shadow-xl shadow-gray-200/60 p-2">
+              <DisasterMap mode="public" height="460px" className="rounded-2xl" />
+            </div>
+
+            {/* Quick Expand Floating Button di pojok kanan atas peta */}
+            <button
+              type="button"
+              onClick={() => setIsMapExpanded(true)}
+              className="absolute top-5 right-5 z-20 button-scale bg-white/95 hover:bg-white text-gray-800 px-3 py-2 rounded-xl shadow-lg border border-gray-200 flex items-center gap-1.5 text-xs font-bold transition"
+              title="Perbesar Peta Layar Penuh"
+            >
+              <Maximize2 size={15} className="text-brand-red" />
+              <span className="hidden sm:inline">Perbesar</span>
+            </button>
+          </div>
+
+          {/* Kolom Kanan: Penjelasan & Tombol Pembesar (Warna Biru di Sketsa) */}
+          <div className="lg:col-span-5 text-left">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50/90 px-4 py-1.5 text-xs font-bold text-red-700 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+              <span>Pemantauan Geospasial Real-time</span>
+            </div>
+
+            <h2 className="mt-5 text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
+              Peta Pemantauan Wilayah & Potensi Risiko Bencana
+            </h2>
+
+            <p className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
+              Pantau titik stasiun sensor IoT di lapangan, laporan kejadian bencana terverifikasi dari masyarakat, serta aktivitas gempa terkini BMKG secara presisi dalam satu peta terintegrasi.
+            </p>
+
+            {/* Highlight Fitur Peta */}
+            <div className="mt-6 space-y-3.5">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-red-50 text-brand-red flex items-center justify-center shrink-0 mt-0.5">
+                  <Radio size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Sensor IoT Lapangan</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Deteksi ketinggian air, gempa, dan stasiun sensor cuaca secara langsung.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-red-50 text-brand-red flex items-center justify-center shrink-0 mt-0.5">
+                  <Activity size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Laporan Warga & BMKG Terkini</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Titik banjir, kebakaran, dan longsor tervalidasi lengkap dengan data gempa bumi.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-red-50 text-brand-red flex items-center justify-center shrink-0 mt-0.5">
+                  <Layers size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">3 Mode Peta Interaktif</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Ganti mode Default jalanan, Citra Satelit, dan Terrain topografi sesuka Anda.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tombol Perbesar Peta (Kotak/Pill Biru di Sketsa) */}
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsMapExpanded(true)}
+                className="button-scale inline-flex items-center gap-2.5 rounded-full bg-red-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-colors duration-200 hover:bg-red-700"
+              >
+                <Maximize2 size={18} />
+                <span>Perbesar Peta Interaktif</span>
+              </button>
+
+              <Link
+                to="/register"
+                className="button-scale inline-flex items-center justify-center rounded-full border border-gray-200 bg-white px-5 py-3.5 text-sm font-semibold text-gray-700 shadow-xs transition hover:bg-gray-50"
+              >
+                Lapor Kejadian
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Cara Kerja */}
       <section id="cara-kerja" className="fade-in-element max-w-6xl mx-auto px-6 py-16 text-center">
         <div className="flex flex-col items-center gap-4 lg:flex-row lg:justify-between lg:items-end">
@@ -200,6 +309,46 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+
+      {/* Fullscreen Map Modal */}
+      {isMapExpanded && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-6 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-7xl h-[92vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center">
+                  <Layers size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                    Peta Pemantauan Geospasial Siap Siaga
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Mode Layar Penuh • Menampilkan stasiun sensor IoT, BMKG, dan laporan warga
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsMapExpanded(false)}
+                  className="button-scale p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition"
+                  title="Tutup Peta Layar Penuh (Esc)"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Fullscreen Map Canvas */}
+            <div className="flex-1 w-full relative">
+              <DisasterMap mode="public" height="100%" className="w-full h-full rounded-none border-0 shadow-none" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="fade-in-element bg-white border-t border-gray-100">

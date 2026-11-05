@@ -4,6 +4,7 @@ import {
   MapPin,
   Crosshair,
   Layers,
+  Globe,
   Radio,
   Droplets,
   Flame,
@@ -25,7 +26,9 @@ import { reportService } from '../services/reportService';
 import { adminStations } from '../data/adminData';
 import { API_URL, MAP_API_KEY } from '../config';
 
-// Basemap CARTO wajib memakai API key (VITE_MAP_API_KEY di .env root), lihat carto.com/basemaps/apikey
+// Basemap CARTO jika ada API key (VITE_MAP_API_KEY di .env root), atau OpenStreetMap & Esri (gratis tanpa watermark)
+const hasMapApiKey = Boolean(MAP_API_KEY && String(MAP_API_KEY).trim() && String(MAP_API_KEY).trim() !== 'undefined');
+
 function cartoUrl(style) {
   return `https://{s}.basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png?key=${MAP_API_KEY}`;
 }
@@ -36,24 +39,37 @@ const CARTO_OPTIONS = {
   attribution: '&copy; OpenStreetMap &copy; CARTO'
 };
 
-// Pilihan peta dasar
+// 3 Mode Peta: Default, Satelit, Terrain
 const BASE_LAYERS = {
-  standar: {
-    label: 'Standar',
-    url: cartoUrl('voyager'),
-    options: CARTO_OPTIONS
+  default: {
+    label: 'Default',
+    url: hasMapApiKey
+      ? cartoUrl('voyager')
+      : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: hasMapApiKey
+      ? CARTO_OPTIONS
+      : {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
   },
   satelit: {
     label: 'Satelit',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     options: { maxZoom: 19, attribution: 'Citra &copy; Esri' },
     // Label nama tempat di atas citra satelit
-    labels: cartoUrl('voyager_only_labels')
+    labels: hasMapApiKey
+      ? cartoUrl('voyager_only_labels')
+      : 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    labelsOptions: hasMapApiKey ? { maxZoom: 20, subdomains: 'abcd' } : { maxZoom: 19 }
   },
-  gelap: {
-    label: 'Gelap',
-    url: cartoUrl('dark_all'),
-    options: CARTO_OPTIONS
+  terrain: {
+    label: 'Terrain',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    options: {
+      maxZoom: 19,
+      attribution: 'Topografi &copy; Esri'
+    }
   }
 };
 
@@ -63,7 +79,14 @@ function createBaseLayer(key) {
   const config = BASE_LAYERS[key] || BASE_LAYERS[DEFAULT_BASE_LAYER];
   const tiles = [L.tileLayer(config.url, config.options)];
   if (config.labels) {
-    tiles.push(L.tileLayer(config.labels, { maxZoom: 20, subdomains: 'abcd', pane: 'overlayPane' }));
+    tiles.push(
+      L.tileLayer(config.labels, {
+        pane: 'overlayPane',
+        subdomains: config.options?.subdomains || 'abc',
+        maxZoom: config.options?.maxZoom || 19,
+        ...(config.labelsOptions || {})
+      })
+    );
   }
   return L.layerGroup(tiles);
 }
@@ -180,6 +203,7 @@ export default function DisasterMap({
       L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 90 }).addTo(map);
 
       baseLayerRef.current = createBaseLayer(baseLayer).addTo(map);
+      map.on('click', () => setShowLayerMenu(false));
 
       const markersGroup = L.layerGroup().addTo(map);
       markersLayerRef.current = markersGroup;
@@ -529,37 +553,98 @@ export default function DisasterMap({
       {/* Map Element Container */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Top Overlay: badge di kiri, kontrol di kanan; kontrol turun ke baris baru bila peta sempit */}
-      <div className="absolute top-3 left-3 right-12 z-10 flex flex-wrap items-start gap-1.5 pointer-events-none [&>*]:pointer-events-auto">
-      {/* Nearest Sensor Info or GPS Badge */}
-      <div className="min-w-0 max-w-full sm:max-w-xs">
-        {nearestStation ? (
-          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2 text-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-            <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate text-[11px]">
-                Sensor Terdekat: {nearestStation.name}
-              </p>
-              <p className="text-[10px] text-gray-500 truncate">
-                {nearestStation.distanceKm} km • {nearestStation.status}
-              </p>
+      {/* Top Bar: Ujung Kiri = Sensor Terdekat (Ukuran Rapi & Compact), Ujung Kanan = Filter & Layer */}
+      <div className="absolute top-3 left-3 right-14 z-10 flex items-center justify-between gap-2 pointer-events-none [&>*]:pointer-events-auto">
+        {/* Ujung Kiri: Badge Sensor Terdekat (Dipindahkan ke kiri atas dengan ukuran rapi & compact) */}
+        <div className="shrink-0 max-w-[220px] sm:max-w-xs">
+          {nearestStation ? (
+            <div className="bg-white/95 backdrop-blur-sm border border-gray-200/90 px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2 text-xs transition">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+              <div className="min-w-0">
+                <p className="font-bold text-gray-900 truncate text-[11px] leading-tight">
+                  Sensor: {nearestStation.name}
+                </p>
+                <p className="text-[10px] text-gray-500 truncate leading-tight">
+                  {nearestStation.distanceKm} km • {nearestStation.status}
+                </p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2 text-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary-700 shrink-0" />
-            <span className="font-semibold text-gray-800 text-[11px]">Peta Pemantauan Bencana</span>
-          </div>
+          ) : (
+            <div className="bg-white/95 backdrop-blur-sm border border-gray-200/90 px-2.5 py-1.5 rounded-xl shadow-md flex items-center gap-2 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+              <span className="font-semibold text-gray-800 text-[11px]">Sensor Aktif</span>
+            </div>
+          )}
+        </div>
+
+        {/* Ujung Kanan: Filter Layer & Pilihan Peta (Hanya untuk mode login / non-public) */}
+        {mode !== 'public' && (
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+          {/* Toggle Reports Layer */}
+          <button
+            onClick={() => setShowReports(!showReports)}
+            className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition shrink-0 ${
+              showReports
+                ? 'bg-brand-red text-white border-brand-red hover:bg-red-700'
+                : 'bg-white/95 text-gray-600 border-gray-200 hover:bg-white'
+            }`}
+            title="Tampilkan/Sembunyikan Laporan Warga"
+          >
+            <Droplets size={13} />
+            <span className="hidden sm:inline">Laporan</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+              showReports ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600 font-bold'
+            }`}>
+              {reports.length}
+            </span>
+          </button>
+
+          {/* Toggle Stations Layer */}
+          <button
+            onClick={() => setShowStations(!showStations)}
+            className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition shrink-0 ${
+              showStations
+                ? 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700'
+                : 'bg-white/95 text-gray-600 border-gray-200 hover:bg-white'
+            }`}
+            title="Tampilkan/Sembunyikan Stasiun IoT"
+          >
+            <Radio size={13} />
+            <span className="hidden sm:inline">Sensor</span>
+          </button>
+
+          {/* Toggle Gempa BMKG Layer */}
+          {earthquake && (
+            <button
+              onClick={() => setShowEarthquake(!showEarthquake)}
+              className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition shrink-0 ${
+                showEarthquake
+                  ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
+                  : 'bg-white/95 text-gray-600 border-gray-200 hover:bg-white'
+              }`}
+              title="Tampilkan/Sembunyikan Gempa Terkini BMKG"
+            >
+              <Activity size={13} />
+              <span className="hidden sm:inline">Gempa</span>
+            </button>
+          )}
+
+
+        </div>
         )}
       </div>
 
-      {/* Map Controls: Location Button & Layer Toggles */}
-      <div className="ml-auto flex items-center gap-1.5">
-        {/* GPS Locate Me Button */}
+      {/* Lokasi Saya Button: Hanya untuk mode login / non-public */}
+      {mode !== 'public' && (
+        <div className="absolute top-[50px] right-14 z-10 pointer-events-auto">
         <button
           onClick={handleGetLocation}
           disabled={gpsLoading}
-          className="bg-white/95 hover:bg-white text-gray-700 px-2.5 py-1.5 rounded-xl border border-gray-200 shadow-md text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+          className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50 ${
+            userLocation
+              ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 shadow-blue-50'
+              : 'bg-white/95 hover:bg-white text-gray-700 border-gray-200'
+          }`}
           title="Pusatkan ke Posisi Saya"
         >
           {gpsLoading ? (
@@ -567,91 +652,63 @@ export default function DisasterMap({
           ) : (
             <Crosshair size={13} className={userLocation ? 'text-blue-600' : 'text-gray-500'} />
           )}
-          <span className="hidden sm:inline">{userLocation ? 'Lokasi Saya' : 'Cari GPS'}</span>
+          <span>Lokasi Saya</span>
         </button>
+      </div>
+      )}
 
-        {/* Toggle Reports Layer */}
-        <button
-          onClick={() => setShowReports(!showReports)}
-          className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition ${
-            showReports
-              ? 'bg-brand-red text-white border-brand-red'
-              : 'bg-white/95 text-gray-600 border-gray-200'
-          }`}
-          title="Tampilkan/Sembunyikan Laporan Warga"
-        >
-          <Droplets size={13} />
-          <span className="hidden sm:inline">Laporan</span>
-          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20">
-            {reports.length}
-          </span>
-        </button>
-
-        {/* Toggle Stations Layer */}
-        <button
-          onClick={() => setShowStations(!showStations)}
-          className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition ${
-            showStations
-              ? 'bg-emerald-600 text-white border-emerald-600'
-              : 'bg-white/95 text-gray-600 border-gray-200'
-          }`}
-          title="Tampilkan/Sembunyikan Stasiun IoT"
-        >
-          <Radio size={13} />
-          <span className="hidden sm:inline">Sensor</span>
-        </button>
-
-        {/* Toggle Gempa BMKG Layer */}
-        {earthquake && (
-          <button
-            onClick={() => setShowEarthquake(!showEarthquake)}
-            className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition ${
-              showEarthquake
-                ? 'bg-red-600 text-white border-red-600'
-                : 'bg-white/95 text-gray-600 border-gray-200'
-            }`}
-            title="Tampilkan/Sembunyikan Gempa Terkini BMKG"
-          >
-            <Activity size={13} />
-            <span className="hidden sm:inline">Gempa</span>
-          </button>
-        )}
-
-        {/* Pilihan Peta Dasar */}
+      {/* Tombol Layer Peta (Ujung Kiri Bawah - seperti Google Maps) */}
+      <div className="absolute bottom-8 left-3 z-20 pointer-events-auto">
         <div className="relative">
-          <button
-            onClick={() => setShowLayerMenu((v) => !v)}
-            className={`px-2.5 py-1.5 rounded-xl border shadow-md text-xs font-semibold flex items-center gap-1.5 transition ${
-              showLayerMenu ? 'bg-gray-900 text-white border-gray-900' : 'bg-white/95 text-gray-700 border-gray-200 hover:bg-white'
-            }`}
-            title="Pilih Tampilan Peta"
-          >
-            <Layers size={13} />
-            <span className="hidden sm:inline">{BASE_LAYERS[baseLayer]?.label}</span>
-          </button>
-
+          {/* Popup Pilihan 3 Mode Peta (Muncul ke atas saat tombol diklik) */}
           {showLayerMenu && (
-            <div className="absolute right-0 mt-1.5 w-36 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg p-1 map-menu-in">
-              {Object.entries(BASE_LAYERS).map(([key, cfg]) => (
-                <button
-                  key={key}
-                  onClick={() => {
-                    setBaseLayer(key);
-                    setShowLayerMenu(false);
-                  }}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition ${
-                    baseLayer === key ? 'bg-red-50 text-brand-red font-semibold' : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {cfg.label}
-                  {baseLayer === key && <CheckCircle2 size={12} />}
-                </button>
-              ))}
+            <div className="absolute bottom-11 left-0 w-44 bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-2xl shadow-xl p-1.5 z-30 map-menu-in">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1">Tipe Peta</p>
+              <div className="space-y-1">
+                {Object.entries(BASE_LAYERS).map(([key, cfg]) => {
+                  const isActive = baseLayer === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setBaseLayer(key);
+                        setShowLayerMenu(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition active:scale-98 ${
+                        isActive
+                          ? 'bg-red-50 text-brand-red font-bold'
+                          : 'text-gray-700 hover:bg-gray-100/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {key === 'default' && <Layers size={14} className={isActive ? 'text-brand-red' : 'text-gray-500'} />}
+                        {key === 'satelit' && <Globe size={14} className={isActive ? 'text-brand-red' : 'text-gray-500'} />}
+                        {key === 'terrain' && <Mountain size={14} className={isActive ? 'text-brand-red' : 'text-gray-500'} />}
+                        <span>{cfg.label}</span>
+                      </div>
+                      {isActive && <CheckCircle2 size={13} className="text-brand-red" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
-        </div>
-      </div>
 
+          {/* Tombol Kotak Icon Layer (Ujung Kiri Bawah) */}
+          <button
+            type="button"
+            onClick={() => setShowLayerMenu((v) => !v)}
+            className={`w-9 h-9 rounded-xl border shadow-md flex items-center justify-center transition active:scale-95 ${
+              showLayerMenu
+                ? 'bg-brand-red text-white border-brand-red hover:bg-red-700 shadow-red-200'
+                : 'bg-white/95 hover:bg-white text-gray-700 border-gray-200/90'
+            }`}
+            title="Pilih Tipe Peta (Default, Satelit, Terrain)"
+          >
+            <Layers size={18} strokeWidth={2.2} />
+          </button>
+        </div>
       </div>
 
       {/* Bottom-Right Legend Overlay */}

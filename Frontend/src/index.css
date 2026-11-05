@@ -346,3 +346,13 @@ section:target {
     animation: none !important;
   }
 }
+
+
+/* Sembunyikan scrollbar untuk kontrol peta horizontal */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
