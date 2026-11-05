@@ -102,6 +102,10 @@ section:target {
   z-index: 1;
 }
 
+.disaster-map-dark-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}
+
 @keyframes gpsPulse {
   0% {
     transform: translate(-50%, -50%) scale(0.4);
