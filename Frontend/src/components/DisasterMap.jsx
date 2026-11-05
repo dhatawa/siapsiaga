@@ -24,79 +24,29 @@ import {
 } from 'lucide-react';
 import { reportService } from '../services/reportService';
 import { adminStations } from '../data/adminData';
-<<<<<<< HEAD
-import { API_URL, MAP_API_KEY } from '../config';
 
-// Basemap CARTO jika ada API key (VITE_MAP_API_KEY di .env root), atau OpenStreetMap & Esri (gratis tanpa watermark)
-const hasMapApiKey = Boolean(MAP_API_KEY && String(MAP_API_KEY).trim() && String(MAP_API_KEY).trim() !== 'undefined');
-
-function cartoUrl(style) {
-  return `https://{s}.basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png?key=${MAP_API_KEY}`;
-}
-
-const CARTO_OPTIONS = {
-  maxZoom: 20,
-  subdomains: 'abcd',
-  attribution: '&copy; OpenStreetMap &copy; CARTO'
-};
-=======
 import { API_URL } from '../config';
->>>>>>> 75bba113243686c60b201a8a309fbe84c07e2564
 
-// 3 Mode Peta: Default, Satelit, Terrain
+// Pilihan peta dasar menggunakan layanan yang tidak memerlukan API key.
 const BASE_LAYERS = {
-<<<<<<< HEAD
   default: {
     label: 'Default',
-    url: hasMapApiKey
-      ? cartoUrl('voyager')
-      : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    options: hasMapApiKey
-      ? CARTO_OPTIONS
-      : {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }
-=======
-  standar: {
-    label: 'Standar',
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    options: { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
->>>>>>> 75bba113243686c60b201a8a309fbe84c07e2564
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }
   },
   satelit: {
     label: 'Satelit',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-<<<<<<< HEAD
     options: { maxZoom: 19, attribution: 'Citra &copy; Esri' },
-    // Label nama tempat di atas citra satelit
-    labels: hasMapApiKey
-      ? cartoUrl('voyager_only_labels')
-      : 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-    labelsOptions: hasMapApiKey ? { maxZoom: 20, subdomains: 'abcd' } : { maxZoom: 19 }
+    labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
   },
   terrain: {
     label: 'Terrain',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-    options: {
-      maxZoom: 19,
-      attribution: 'Topografi &copy; Esri'
-=======
-    options: {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri — Sources: Esri, Maxar, Earthstar Geographics'
-    },
-    labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer/tile/{z}/{y}/{x}'
-  },
-  gelap: {
-    label: 'Gelap',
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    options: {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors',
-      className: 'disaster-map-dark-tiles'
->>>>>>> 75bba113243686c60b201a8a309fbe84c07e2564
-    }
+    options: { maxZoom: 19, attribution: 'Topografi &copy; Esri' }
   }
 };
 
@@ -105,24 +55,15 @@ const DEFAULT_BASE_LAYER = 'satelit';
 function createBaseLayer(key) {
   const config = BASE_LAYERS[key] || BASE_LAYERS[DEFAULT_BASE_LAYER];
   const tiles = [L.tileLayer(config.url, config.options)];
+
   if (config.labels) {
-<<<<<<< HEAD
-    tiles.push(
-      L.tileLayer(config.labels, {
-        pane: 'overlayPane',
-        subdomains: config.options?.subdomains || 'abc',
-        maxZoom: config.options?.maxZoom || 19,
-        ...(config.labelsOptions || {})
-      })
-    );
-=======
     tiles.push(L.tileLayer(config.labels, {
       maxZoom: 19,
       attribution: '&copy; Esri',
       pane: 'overlayPane'
     }));
->>>>>>> 75bba113243686c60b201a8a309fbe84c07e2564
   }
+
   return L.layerGroup(tiles);
 }
 
