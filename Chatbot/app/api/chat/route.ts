@@ -15,8 +15,16 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost:5173")
   .map((o) => o.trim())
   .filter(Boolean);
 
+// Saat pengembangan, izinkan semua alamat lokal (port Vite bisa berpindah ke 5174, 5175, dst.)
+const DEV_LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+const IS_DEV = process.env.NODE_ENV !== "production";
+
+function isAllowedOrigin(origin: string) {
+  return ALLOWED_ORIGINS.includes(origin) || (IS_DEV && DEV_LOCAL_ORIGIN.test(origin));
+}
+
 function corsHeaders(origin: string | null): Record<string, string> {
-  if (!origin || !ALLOWED_ORIGINS.includes(origin)) return {};
+  if (!origin || !isAllowedOrigin(origin)) return {};
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
