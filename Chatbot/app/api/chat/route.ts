@@ -6,11 +6,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const client = new Anthropic(); // membaca ANTHROPIC_API_KEY dari environment
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5";
+// Default: Haiku (model paling ringan & murah). Ganti lewat ANTHROPIC_MODEL bila perlu.
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-5-5";
 // Fallback server-side saat model menolak karena safety classifier (hanya Opus 5 / Fable 5.1)
 const SUPPORTS_FALLBACK = MODEL === "claude-opus-5" || MODEL === "claude-fable-5-1";
+// Parameter effort tidak dikirim untuk Haiku
+const SUPPORTS_EFFORT = !MODEL.includes("haiku");
+// Batas panjang jawaban agar hemat token (jawaban chatbot memang dibuat ringkas)
+const MAX_OUTPUT_TOKENS = Number(process.env.ANTHROPIC_MAX_TOKENS) || 1024;
 
-const MAX_HISTORY = 20; // pesan terakhir yang dikirim ke model
+const MAX_HISTORY = 10; // pesan terakhir yang dikirim ke model
 const MAX_CHARS = 4000; // panjang maksimum satu pesan
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost:5173")
@@ -86,10 +91,10 @@ export async function POST(req: Request) {
   // 3. Panggil Claude dengan system prompt, lalu alirkan teks ke klien
   const stream = client.beta.messages.stream({
     model: MODEL,
-    max_tokens: 16000,
+    max_tokens: MAX_OUTPUT_TOKENS,
     system: SYSTEM_PROMPT,
     messages,
-    output_config: { effort: "medium" },
+    ...(SUPPORTS_EFFORT ? { output_config: { effort: "low" as const } } : {}),
     ...(SUPPORTS_FALLBACK
       ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
       : {}),
@@ -105,7 +110,9 @@ export async function POST(req: Request) {
           }
         }
         const final = await stream.finalMessage();
-        if (final.stop_reason === "refusal") {
+        if (final.stop_reason === "max_tokens") {
+          controller.enqueue(encoder.encode("\n\n[Jawaban dipotong karena terlalu panjang. Ketik \"lanjutkan\" untuk meneruskan.]"));
+        } else if (final.stop_reason === "refusal") {
           controller.enqueue(
             encoder.encode(
               "\n\nMaaf, saya tidak dapat melanjutkan jawaban ini. Silakan ajukan pertanyaan lain seputar bencana alam."

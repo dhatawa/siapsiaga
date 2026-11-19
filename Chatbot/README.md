@@ -44,7 +44,8 @@ Variabel yang dipakai chatbot:
 | Variabel | Wajib | Keterangan |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Ya | API key dari https://console.anthropic.com |
-| `ANTHROPIC_MODEL` | Tidak | Default `claude-opus-5`. Bisa diganti, misalnya `claude-sonnet-5` atau `claude-haiku-4-5` untuk biaya lebih rendah |
+| `ANTHROPIC_MODEL` | Tidak | Default `claude-haiku-5-5` (paling hemat). Bisa diganti ke `claude-sonnet-5-5` atau `claude-opus-5` bila butuh jawaban lebih dalam |
+| `ANTHROPIC_MAX_TOKENS` | Tidak | Batas panjang satu jawaban, default `1024` |
 | `BACKEND_URL` | Ya | URL backend Express yang dipakai server Next.js untuk verifikasi token (default `http://localhost:5000`) |
 | `NEXT_PUBLIC_BACKEND_URL` | Ya | URL backend yang dipanggil browser untuk form login di halaman chatbot |
 | `ALLOWED_ORIGINS` | Ya | Origin website Frontend yang boleh memanggil `/api/chat`, dipisah koma (default `http://localhost:5173`) |
@@ -84,6 +85,6 @@ Contoh percakapan:
 ## Catatan
 
 - **System prompt** ada di [`lib/systemPrompt.ts`](lib/systemPrompt.ts) dan dikirim di setiap pemanggilan API dari server. Pengguna tidak bisa mengubahnya.
-- Riwayat chat dikirim ulang setiap pesan (maks. 20 pesan terakhir, 4000 karakter per pesan) dan tidak disimpan di database. Tombol "Chat baru" mengosongkan riwayat.
+- Riwayat chat dikirim ulang setiap pesan (maks. 10 pesan terakhir, 4000 karakter per pesan) dan tidak disimpan di database. Tombol "Chat baru" mengosongkan riwayat.
 - Jika memakai `claude-opus-5`, *server-side fallback* (`fallbacks: "default"`) aktif. Kalau safety classifier menolak permintaan, API otomatis melanjutkannya dengan model cadangan.
 - Untuk produksi, ganti semua URL `localhost` di env dengan domain asli, lalu tambahkan domain website ke `ALLOWED_ORIGINS`.
