@@ -2,7 +2,8 @@
 
 Chatbot AI yang berfokus pada bencana alam (gempa bumi, tsunami, gunung meletus, banjir, tanah longsor, cuaca ekstrem, mitigasi, dan evakuasi). Percakapan dibuat tetap natural: bot menanggapi sapaan dan pertanyaan lanjutan dengan konteks, serta mengarahkan dengan ramah jika ditanya hal di luar cakupan.
 
-- **Tech stack:** Next.js (App Router) + React + Tailwind CSS + Claude API (`@anthropic-ai/sdk`, streaming)
+- **Tech stack:** Next.js (App Router) + React + Tailwind CSS + **Siap Siaga AI** (mesin NLP lokal, tanpa API AI eksternal)
+- **Offline dari layanan AI:** tidak butuh API key dan tidak ada biaya token. Satu-satunya data dari luar adalah info gempa terkini dari BMKG lewat Backend (`/api/bmkg/earthquake`).
 - **Login:** memakai akun website Siap Siaga yang sama. API chat memverifikasi token ke backend Express (`GET /api/auth/me`), jadi hanya pengguna yang sudah login yang bisa chat.
 
 ## Struktur file
@@ -10,7 +11,7 @@ Chatbot AI yang berfokus pada bencana alam (gempa bumi, tsunami, gunung meletus,
 ```
 Chatbot/
 ├── app/
-│   ├── api/chat/route.ts   # API chat: cek login → panggil Claude + system prompt → stream jawaban
+│   ├── api/chat/route.ts   # API chat: cek login → Siap Siaga AI lokal → stream jawaban
 │   ├── layout.tsx
 │   ├── page.tsx            # Cek sesi, lalu tampilkan form login atau jendela chat
 │   └── globals.css         # Tailwind + gaya markdown jawaban
@@ -19,7 +20,10 @@ Chatbot/
 │   ├── LoginForm.tsx       # Login dengan akun Siap Siaga
 │   └── Icons.tsx
 ├── lib/
-│   ├── systemPrompt.ts     # Cakupan topik dan gaya percakapan chatbot
+│   ├── siagaAI/
+│   │   ├── engine.ts       # Mesin chatbot: deteksi bencana & fase, TF-IDF, konteks, penolakan topik lain
+│   │   ├── knowledge.ts    # Basis pengetahuan: intent, contoh pertanyaan, dan jawaban
+│   │   └── text.ts         # Normalisasi Bahasa Indonesia: kata gaul, salah ketik, stemming
 │   ├── auth.ts             # Verifikasi token ke backend Express
 │   └── session.ts          # Simpan token di localStorage
 └── package.json
@@ -43,9 +47,7 @@ Variabel yang dipakai chatbot:
 
 | Variabel | Wajib | Keterangan |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Ya | API key dari https://console.anthropic.com |
-| `ANTHROPIC_MODEL` | Tidak | Default `claude-opus-5`. Bisa diganti, misalnya `claude-sonnet-5` atau `claude-haiku-4-5` untuk biaya lebih rendah |
-| `BACKEND_URL` | Ya | URL backend Express yang dipakai server Next.js untuk verifikasi token (default `http://localhost:5000`) |
+| `BACKEND_URL` | Ya | URL backend Express untuk verifikasi token dan info gempa terkini BMKG (default `http://localhost:5000`) |
 | `NEXT_PUBLIC_BACKEND_URL` | Ya | URL backend yang dipanggil browser untuk form login di halaman chatbot |
 | `ALLOWED_ORIGINS` | Ya | Origin website Frontend yang boleh memanggil `/api/chat`, dipisah koma (default `http://localhost:5173`) |
 
@@ -81,9 +83,23 @@ Contoh percakapan:
 - "Terima kasih" → ditanggapi dengan wajar, tanpa mengulang perkenalan
 - "Buatkan resep nasi goreng" → diarahkan dengan ramah kembali ke topik bencana
 
+## Cara kerja Siap Siaga AI
+
+Siap Siaga AI adalah chatbot **retrieval-based** (berbasis pencarian jawaban), bukan model generatif. Setiap pesan diproses seperti ini:
+
+1. **Normalisasi teks** – huruf kecil, kata gaul ke kata baku ("gmn" → "bagaimana"), koreksi salah ketik kata kunci ("gmpa" → "gempa"), kata ulang ("tanda2"), dan stemming sederhana (buang imbuhan).
+2. **Deteksi jenis bencana** (gempa, tsunami, banjir, longsor, erupsi, cuaca ekstrem, kebakaran, kekeringan) dan **fase** (info/penyebab, tanda-tanda, sebelum, saat, setelah).
+3. **Klasifikasi maksud** dengan **TF-IDF + cosine similarity** terhadap contoh pertanyaan di `knowledge.ts`, ditambah kemiripan **trigram karakter** agar tahan salah ketik. Skor diberi bobot tambahan jika jenis bencana dan fasenya cocok.
+4. **Konteks percakapan** – pertanyaan lanjutan seperti "kalau saya di lantai 3?" atau "kalau setelahnya?" memakai jenis bencana dan fase dari pertanyaan sebelumnya.
+5. **Batasan topik** – pertanyaan tanpa kata kunci kebencanaan ditolak dengan ramah. Kata seperti "tolong" atau "terjebak" memunculkan nomor darurat lebih dulu.
+6. **Data real-time** – "gempa terkini" diambil dari BMKG melalui Backend. Untuk cuaca dan status gunung, bot mengarahkan ke BMKG dan MAGMA Indonesia.
+
+Menambah pengetahuan cukup dengan menambah intent baru (contoh pertanyaan + jawaban) di [`lib/siagaAI/knowledge.ts`](lib/siagaAI/knowledge.ts), tanpa melatih ulang secara manual. Model TF-IDF dibangun otomatis saat server berjalan.
+
+**Kelebihan:** gratis, cepat, jawaban terkontrol dan tidak mengarang, tidak bisa dibelokkan ke topik lain.
+**Keterbatasan:** hanya bisa menjawab hal yang ada di basis pengetahuan, dan kalimatnya tidak disusun ulang seperti model bahasa besar.
+
 ## Catatan
 
-- **System prompt** ada di [`lib/systemPrompt.ts`](lib/systemPrompt.ts) dan dikirim di setiap pemanggilan API dari server. Pengguna tidak bisa mengubahnya.
 - Riwayat chat dikirim ulang setiap pesan (maks. 20 pesan terakhir, 4000 karakter per pesan) dan tidak disimpan di database. Tombol "Chat baru" mengosongkan riwayat.
-- Jika memakai `claude-opus-5`, *server-side fallback* (`fallbacks: "default"`) aktif. Kalau safety classifier menolak permintaan, API otomatis melanjutkannya dengan model cadangan.
 - Untuk produksi, ganti semua URL `localhost` di env dengan domain asli, lalu tambahkan domain website ke `ALLOWED_ORIGINS`.
